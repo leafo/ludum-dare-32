@@ -50,13 +50,13 @@ class TrackNotes
             "failed to find measure named `#{measure}`"
 
         rate = measure.rate or 1
-        assert measure.hits, "no hits in measure"
+        notes = assert measure[1], "no notes in measure"
 
-        for hit in *@parse_hits measure.hits, rate, beat_offset
-          root_beat = math.floor hit.beat
-          print "Adding hit to beat #{root_beat}", require("moon").dump hit
+        for note in *@parse_notes notes, rate, beat_offset
+          root_beat = math.floor note.beat
+          print "Adding note to beat #{root_beat}", require("moon").dump note
           @timeline[root_beat] or= {}
-          table.insert @timeline[root_beat], hit
+          table.insert @timeline[root_beat], note
 
       beat_offset += @track.data.beats_per_measure
 
@@ -65,17 +65,17 @@ class TrackNotes
     update: (dt) =>
       true
 
-  parse_hits: (str, rate=1, offset=0) =>
+  parse_notes: (str, rate=1, offset=0) =>
     beat = offset
-    hits = for t in str\gmatch "."
-      hit = if t == "x"
+    notes = for t in str\gmatch "."
+      note = if t == "x"
         { type: t, :beat }
 
       beat += 1 / rate
-      continue unless hit
-      hit
+      continue unless note
+      note
 
-    hits
+    notes
 
 class Track
   prepared: false
