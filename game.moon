@@ -1,6 +1,45 @@
 
 {graphics: g, audio: a} = love
 
+import Bin from require "lovekit.ui"
+
+class Metronome extends Box
+  x: 0
+  y: 0
+  w: 200
+  h: 20
+
+  dot_w: 20
+
+  odd: false
+
+  new: =>
+
+  set_track: (@track) =>
+    @last_q = -1
+
+  draw: =>
+    g.rectangle "line", @unpack!
+
+    if @track
+      q, p = @track\get_quad!
+
+      if q != @last_q
+        @odd = not @odd
+        @last_q = q
+
+      if q
+        available_w = @w - @dot_w
+        offset = p * available_w
+        offset = available_w - offset if @odd
+
+        COLOR\push 255,100,100
+        g.rectangle "fill", @x + offset, @y, @dot_w, @h
+        COLOR\pop!
+
+  update: (dt) =>
+    true
+
 class Track
   prepared: false
   playing: false
@@ -47,8 +86,9 @@ class Track
     bps = @data.bpm / 60
     offset / bps
 
-  -- 4beat
-  get_quad: (time) =>
+  -- 4 beat
+  get_quad: (time=love.timer.getTime!) =>
+    return nil unless @playing
     beat = @get_beat time
     quad = beat * 4
     math.floor(quad), math.fmod(quad, 1)
@@ -99,12 +139,17 @@ class Game
     @viewport = Viewport scale: GAME_CONFIG.scale
     @entities = EntityList!
 
+    @metronome = Metronome!
+    @ui = Bin 0, 0, @viewport.w, @viewport.h, @metronome
+
   draw: =>
     @viewport\apply!
     g.print "hello world", 10, 10
+    @ui\draw!
     @viewport\pop!
 
   update: (dt) =>
+    @ui\update dt
     @entities\update dt
 
     if CONTROLLER\tapped "confirm"
@@ -113,5 +158,6 @@ class Game
         @track = Track "beat"
         @track\prepare!
         @entities\add @track
+        @metronome\set_track @track
 
 { :Game }
