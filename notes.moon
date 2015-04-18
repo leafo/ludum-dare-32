@@ -45,6 +45,16 @@ class TrackNotes
       for note in *group
         print " * [#{note.beat}] #{note.type}"
 
+  each_notes: (start, stop) =>
+    start = math.floor start
+    stop = math.floor stop
+
+    coroutine.wrap ->
+      for i=start,stop
+        if group = @timeline[i]
+          for note in *group
+            coroutine.yield note
+
   draw: (x=0, y=0, time) =>
     px = 10
     py = 5
