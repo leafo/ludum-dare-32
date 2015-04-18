@@ -27,8 +27,11 @@ class TrackField extends Box
     g.translate @x, @y
 
     -- draw sockets
-    g.rectangle "line", 0, @socket_offset, @socket_w, @socket_h
-    g.rectangle "line", 50, @socket_offset, @socket_w, @socket_h
+    g.rectangle "line", 0, @socket_offset - @socket_h / 2,
+      @socket_w, @socket_h
+
+    g.rectangle "line", 50, @socket_offset - @socket_h / 2,
+      @socket_w, @socket_h
 
     b, q = @track\get_beat!
     b += q
