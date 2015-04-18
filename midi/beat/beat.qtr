@@ -22,6 +22,7 @@
    <file name="beat.mid">../beat.mid</file>
    <file name="beat-Untitled-1.mid">beat-Untitled-1.mid</file>
    <file name="beat-Untitled-2.mid">beat-Untitled-2.mid</file>
+   <file name="beat-Untitled-3.mid">beat-Untitled-3.mid</file>
   </midi-list>
  </files>
  <devices>
@@ -146,9 +147,9 @@
       <fade-out type="OutQuad">0</fade-out>
      </properties>
      <midi-clip>
-      <filename>beat-Untitled-2.mid</filename>
+      <filename>beat-Untitled-3.mid</filename>
       <track-channel>1</track-channel>
-      <revision>0</revision>
+      <revision>1</revision>
      </midi-clip>
     </clip>
    </clips>
