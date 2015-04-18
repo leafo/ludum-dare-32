@@ -14,6 +14,8 @@ class TrackField extends Box
   socket_offset: 50
   socket_spacing: 50
 
+  socket_fade: 0.2
+
   new: (@track, ...) =>
     super ...
     @notes_played = {}
@@ -21,6 +23,7 @@ class TrackField extends Box
 
   draw: =>
     return unless @track.playing
+
     g.rectangle "line", @unpack!
 
     scale = GAME_CONFIG.scale
@@ -30,11 +33,8 @@ class TrackField extends Box
     g.translate @x, @y
 
     -- draw sockets
-    g.rectangle "line", 0, @socket_offset - @socket_h / 2,
-      @socket_w, @socket_h
-
-    g.rectangle "line", 50, @socket_offset - @socket_h / 2,
-      @socket_w, @socket_h
+    @draw_socket 0, @one_time
+    @draw_socket @socket_spacing, @two_time
 
     b, q = @track\get_beat!
     b += q
@@ -51,7 +51,27 @@ class TrackField extends Box
     g.pop!
     g.setScissor!
 
+  draw_socket: (x, push_time) =>
+    time = love.timer.getTime!
+    y,w,h = @socket_offset - @socket_h / 2, @socket_w, @socket_h
+
+    g.rectangle "line", x,y,w,h
+
+    if push_time and time - push_time < @socket_fade
+      a = 1 - (time - push_time) / @socket_fade
+      COLOR\pusha math.floor a * 255
+      g.rectangle "fill", x,y,w,h
+      COLOR\pop!
+
   update: (dt) =>
+    if CONTROLLER\tapped "one"
+      print "tapped one"
+      @one_time = love.timer.getTime!
+
+    if CONTROLLER\tapped "two"
+      print "tapped two"
+      @two_time = love.timer.getTime!
+
     true
 
 class Game

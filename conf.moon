@@ -4,6 +4,9 @@ export GAME_CONFIG = {
     confirm: { "x", " ", joystick: 1 }
     cancel: { "c", joystick: 2 }
 
+    one: { "1", joystick: 1 }
+    two: { "2", joystick: 2 }
+
     up: "up"
     down: "down"
     left: "left"
