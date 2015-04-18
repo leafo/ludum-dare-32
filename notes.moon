@@ -1,16 +1,21 @@
 
 {graphics: g, audio: a} = love
 
+class Note
+  new: (@beat) =>
+
+class Note1 extends Note
+  color: {100, 255, 100}
+  col: 1
+
+class Note2 extends Note
+  color: {100, 100, 255}
+  col: 2
+
 class TrackNotes
   types: {
-    ["1"]: {
-      idx: 1
-      color: {100, 255, 100}
-    }
-    ["2"]: {
-      idx: 2
-      color: {100, 100, 255}
-    }
+    ["1"]: Note1
+    ["2"]: Note2
   }
 
   new: (@track) =>
@@ -78,10 +83,9 @@ class TrackNotes
       group = @timeline[b]
       continue unless group
       for note in *group
-        note_type = @types[note.type]
-        x = px + (note_type.idx - 1) * 3
+        x = px + (note.col - 1) * 3
 
-        COLOR\push unpack note_type.color
+        COLOR\push unpack note.color
         g.rectangle "fill", x,
           py + (note.beat - 1) * (bh + padding),
           bw, bh
@@ -96,14 +100,13 @@ class TrackNotes
   parse_notes: (str, rate=1, offset=0) =>
     beat = offset
     notes = for t in str\gmatch "."
-      note = if @types[t]
-        { type: t, :beat }
+      note = if cls = @types[t]
+        cls beat
 
       beat += 1 / rate
       continue unless note
       note
 
     notes
-
 
 { :TrackNotes }
