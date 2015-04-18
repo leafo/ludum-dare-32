@@ -1,0 +1,163 @@
+<!DOCTYPE qtractorSession>
+<session version="Qtractor 0.6.6" name="beat">
+ <properties>
+  <directory>/home/leafo/code/ludum-dare/ld32/midi/beat</directory>
+  <description>MIDI file import "beat.mid" on Apr 18 2015 10:44:12.
+</description>
+  <sample-rate>44100</sample-rate>
+  <tempo>120</tempo>
+  <ticks-per-beat>960</ticks-per-beat>
+  <beats-per-bar>4</beats-per-bar>
+  <beat-divisor>2</beat-divisor>
+ </properties>
+ <state>
+  <loop-start>0</loop-start>
+  <loop-end>0</loop-end>
+  <punch-in>0</punch-in>
+  <punch-out>0</punch-out>
+ </state>
+ <files>
+  <audio-list/>
+  <midi-list>
+   <file name="beat.mid">../beat.mid</file>
+   <file name="beat-Untitled-1.mid">beat-Untitled-1.mid</file>
+   <file name="beat-Untitled-2.mid">beat-Untitled-2.mid</file>
+  </midi-list>
+ </files>
+ <devices>
+  <audio-engine>
+   <audio-control>
+    <transport-mode>duplex</transport-mode>
+   </audio-control>
+   <audio-bus mode="duplex" name="Master">
+    <monitor>0</monitor>
+    <channels>2</channels>
+    <auto-connect>1</auto-connect>
+    <input-gain>1</input-gain>
+    <input-panning>0</input-panning>
+    <input-controllers/>
+    <input-plugins/>
+    <input-connects>
+     <connect index="0">
+      <client>system</client>
+      <port>capture_1</port>
+     </connect>
+     <connect index="1">
+      <client>system</client>
+      <port>capture_2</port>
+     </connect>
+    </input-connects>
+    <output-gain>1</output-gain>
+    <output-panning>0</output-panning>
+    <output-controllers/>
+    <output-plugins/>
+    <output-connects/>
+   </audio-bus>
+  </audio-engine>
+  <midi-engine>
+   <midi-control>
+    <mmc-mode>duplex</mmc-mode>
+    <mmc-device>127</mmc-device>
+    <spp-mode>duplex</spp-mode>
+    <clock-mode>none</clock-mode>
+   </midi-control>
+   <midi-bus mode="duplex" name="Master">
+    <monitor>0</monitor>
+    <input-gain>1</input-gain>
+    <input-panning>0</input-panning>
+    <input-controllers/>
+    <input-plugins>
+     <audio-output-bus-name></audio-output-bus-name>
+     <audio-output-bus>0</audio-output-bus>
+     <audio-output-auto-connect>1</audio-output-auto-connect>
+    </input-plugins>
+    <input-connects/>
+    <output-gain>1</output-gain>
+    <output-panning>0</output-panning>
+    <output-controllers/>
+    <output-plugins>
+     <audio-output-bus-name></audio-output-bus-name>
+     <audio-output-bus>0</audio-output-bus>
+     <audio-output-auto-connect>1</audio-output-auto-connect>
+    </output-plugins>
+    <output-connects>
+     <connect index="0">
+      <client>129:TiMidity</client>
+      <port>0:TiMidity port 0</port>
+     </connect>
+     <connect index="0">
+      <client>129:TiMidity</client>
+      <port>1:TiMidity port 1</port>
+     </connect>
+     <connect index="0">
+      <client>129:TiMidity</client>
+      <port>2:TiMidity port 2</port>
+     </connect>
+     <connect index="0">
+      <client>129:TiMidity</client>
+      <port>3:TiMidity port 3</port>
+     </connect>
+    </output-connects>
+    <midi-map>
+     <midi-patch channel="9"/>
+    </midi-map>
+   </midi-bus>
+  </midi-engine>
+ </devices>
+ <tracks>
+  <view>
+   <pixels-per-beat>32</pixels-per-beat>
+   <horizontal-zoom>260</horizontal-zoom>
+   <vertical-zoom>100</vertical-zoom>
+   <snap-per-beat>4</snap-per-beat>
+   <edit-head>0</edit-head>
+   <edit-tail>352800</edit-tail>
+  </view>
+  <track type="midi" name="Untitled">
+   <properties>
+    <input-bus>Master</input-bus>
+    <output-bus>Master</output-bus>
+    <midi-omni>0</midi-omni>
+    <midi-channel>9</midi-channel>
+   </properties>
+   <state>
+    <mute>0</mute>
+    <solo>0</solo>
+    <record>0</record>
+    <monitor>0</monitor>
+    <gain>1</gain>
+    <panning>0</panning>
+   </state>
+   <view>
+    <height>72</height>
+    <background-color>#ccffff</background-color>
+    <foreground-color>#667f7f</foreground-color>
+   </view>
+   <controllers/>
+   <clips>
+    <clip name="Untitled">
+     <properties>
+      <name>Untitled</name>
+      <start>0</start>
+      <offset>0</offset>
+      <length>352800</length>
+      <gain>1</gain>
+      <fade-in type="InQuad">0</fade-in>
+      <fade-out type="OutQuad">0</fade-out>
+     </properties>
+     <midi-clip>
+      <filename>beat-Untitled-2.mid</filename>
+      <track-channel>1</track-channel>
+      <revision>0</revision>
+     </midi-clip>
+    </clip>
+   </clips>
+   <plugins>
+    <audio-output-bus-name></audio-output-bus-name>
+    <audio-output-bus>0</audio-output-bus>
+    <audio-output-auto-connect>1</audio-output-auto-connect>
+   </plugins>
+  </track>
+ </tracks>
+</session>
+
