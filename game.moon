@@ -14,7 +14,6 @@ class Metronome extends Box
   new: =>
 
   set_track: (@track) =>
-    @last_b = -1
 
   draw: =>
     g.rectangle "line", @unpack!
@@ -37,7 +36,46 @@ class Metronome extends Box
 class TrackNotes
   new: (@track) =>
     assert @track.data.notes, "no measure groups for tracks"
-    @notes_by_beat
+
+    @timeline = {}
+    @beats = @track\duration_in_beats!
+
+    beat_offset = 1
+    for mid=1,@track\duration_in_measures!
+      print "Adding measure #{mid}"
+      if measure = @track.data.notes[mid]
+        print "  Name: #{measure}"
+        if type(measure) == "string"
+          measure = assert @track.data.notes[measure],
+            "failed to find measure named `#{measure}`"
+
+        rate = measure.rate or 1
+        assert measure.hits, "no hits in measure"
+
+        for hit in *@parse_hits measure.hits, rate, beat_offset
+          root_beat = math.floor hit.beat
+          print "Adding hit to beat #{root_beat}", require("moon").dump hit
+          @timeline[root_beat] or= {}
+          table.insert @timeline[root_beat], hit
+
+      beat_offset += @track.data.beats_per_measure
+
+    draw: (x,y, time) =>
+
+    update: (dt) =>
+      true
+
+  parse_hits: (str, rate=1, offset=0) =>
+    beat = offset
+    hits = for t in str\gmatch "."
+      hit = if t == "x"
+        { type: t, :beat }
+
+      beat += 1 / rate
+      continue unless hit
+      hit
+
+    hits
 
 class Track
   prepared: false
@@ -47,6 +85,8 @@ class Track
     @data = require "midi.#{package}"
     @audio_fname = "midi/#{package}.ogg"
     @source = assert a.newSource(@audio_fname, "stream"), "failed to load source"
+
+    @notes = TrackNotes @
 
   prepare: =>
     print "Preparing #{@audio_fname}"
@@ -83,7 +123,7 @@ class Track
     return unless @start_time
     offset = time - @start_time
     bps = @data.bpm / 60
-    offset * bps / @data.beats_per_measure
+    offset * bps / @data.beats_per_measure + 1
 
   -- get beat? or measure
   get_beat: (time=love.timer.getTime!) =>
@@ -91,13 +131,18 @@ class Track
     offset = time - @start_time
     bps = @data.bpm / 60
     beat = offset * bps
-    math.floor(beat), math.fmod(beat, 1)
+    math.floor(beat) + 1, math.fmod(beat, 1)
 
   -- in seconds
   duration: =>
-    beats = @data.beats_per_measure * @data.measures
     bps = 60 / @data.bpm
-    bps * beats
+    bps * @duration_in_beats!
+
+  duration_in_beats: =>
+    @data.beats_per_measure * @data.measures
+
+  duration_in_measures: =>
+    @data.measures
 
   loop_if_necessary: =>
     if @source\tell("seconds") > @duration!

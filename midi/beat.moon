@@ -6,12 +6,17 @@
   notes: {
     default: {
       rate: 1
-      hits: "...."
+      hits: "x.x."
+    }
+
+    double: {
+      rate: 2
+      hits: "x.x.x.x."
     }
 
     "default"
     "default"
-    "default"
+    "double"
     "default"
   }
 }
