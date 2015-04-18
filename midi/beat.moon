@@ -4,6 +4,11 @@
   measures: 4
 
   notes: {
+    intro: {
+      rate: 1
+      "..1."
+    }
+
     default: {
       rate: 1
       "1.1."
@@ -14,7 +19,7 @@
       "12121212"
     }
 
-    "default"
+    "intro"
     "default"
     "double"
     "default"

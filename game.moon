@@ -12,6 +12,7 @@ class TrackField extends Box
   pixels_per_beat: 100
 
   socket_offset: 50
+  socket_spacing: 50
 
   new: (@track, ...) =>
     super ...
@@ -35,12 +36,11 @@ class TrackField extends Box
     upper = b - (@socket_offset / @pixels_per_beat)
     lower = b + @h / @pixels_per_beat
 
-    COLOR\push 100, 200, 180
-
     for note in @track.notes\each_notes upper, lower
-      g.rectangle "fill", 0, (note.beat - upper) * @pixels_per_beat, 10, 10
-
-    COLOR\pop!
+      COLOR\push unpack note.color
+      g.rectangle "fill", (note.col - 1) * @socket_spacing,
+        (note.beat - upper) * @pixels_per_beat, 10, 10
+      COLOR\pop!
 
     g.pop!
 
