@@ -9,7 +9,7 @@ import Track from require "track"
 class TrackField extends Box
   socket_w: 20
   socket_h: 10
-  pixels_per_beat: 100
+  pixels_per_beat: 50
 
   socket_offset: 50
   socket_spacing: 50
@@ -22,6 +22,9 @@ class TrackField extends Box
   draw: =>
     return unless @track.playing
     g.rectangle "line", @unpack!
+
+    scale = GAME_CONFIG.scale
+    g.setScissor @x * scale, @y * scale, @w * scale, @h * scale
 
     g.push!
     g.translate @x, @y
@@ -46,6 +49,7 @@ class TrackField extends Box
       COLOR\pop!
 
     g.pop!
+    g.setScissor!
 
   update: (dt) =>
     true

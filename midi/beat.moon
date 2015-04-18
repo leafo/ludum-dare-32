@@ -19,9 +19,14 @@
       "12121212"
     }
 
+    out: {
+      rate: 4
+      "1...1...1.2.2222"
+    }
+
     "intro"
     "default"
     "double"
-    "default"
+    "out"
   }
 }
