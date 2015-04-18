@@ -11,27 +11,21 @@ class Metronome extends Box
 
   dot_w: 20
 
-  odd: false
-
   new: =>
 
   set_track: (@track) =>
-    @last_q = -1
+    @last_b = -1
 
   draw: =>
     g.rectangle "line", @unpack!
 
     if @track
-      q, p = @track\get_quad!
-
-      if q != @last_q
-        @odd = not @odd
-        @last_q = q
-
-      if q
+      b, p = @track\get_beat!
+      if b
         available_w = @w - @dot_w
         offset = p * available_w
-        offset = available_w - offset if @odd
+        odd = b % 2 == 1
+        offset = available_w - offset if odd
 
         COLOR\push 255,100,100
         g.rectangle "fill", @x + offset, @y, @dot_w, @h
@@ -39,6 +33,11 @@ class Metronome extends Box
 
   update: (dt) =>
     true
+
+class TrackNotes
+  new: (@track) =>
+    assert @track.data.notes, "no measure groups for tracks"
+    @notes_by_beat
 
 class Track
   prepared: false
@@ -73,25 +72,26 @@ class Track
     @start_time = love.timer.getTime!
     @source\rewind!
     @source\setVolume 1
-    @last_beat = -1
+    @last_measure = -1
 
   stop: =>
     @start_time = nil
     @source\stop!
     @playing = false
 
-  get_beat: (time) =>
+  get_measure: (time=love.timer.getTime!) =>
     return unless @start_time
     offset = time - @start_time
     bps = @data.bpm / 60
-    offset / bps
+    offset * bps / @data.beats_per_measure
 
-  -- 4 beat
-  get_quad: (time=love.timer.getTime!) =>
-    return nil unless @playing
-    beat = @get_beat time
-    quad = beat * 4
-    math.floor(quad), math.fmod(quad, 1)
+  -- get beat? or measure
+  get_beat: (time=love.timer.getTime!) =>
+    return unless @start_time
+    offset = time - @start_time
+    bps = @data.bpm / 60
+    beat = offset * bps
+    math.floor(beat), math.fmod(beat, 1)
 
   -- in seconds
   duration: =>
@@ -104,12 +104,12 @@ class Track
       print "Restart"
       @start!
 
-  update_last_beat: =>
+  update_last_measure: =>
     time = love.timer.getTime!
-    active_beat = math.floor @get_beat time
-    if active_beat != @last_beat
-      @last_beat = active_beat
-      print "  Entering beat: #{@last_beat}"
+    active_beat = math.floor @get_measure time
+    if active_beat != @last_measure
+      @last_measure = active_beat
+      print "  Entering measure: #{@last_measure}"
 
   update: (dt) =>
     unless @prepared
@@ -127,10 +127,10 @@ class Track
       return true
 
     @loop_if_necessary!
-    @update_last_beat!
+    @update_last_measure!
 
     if CONTROLLER\tapped "confirm"
-      print @get_quad love.timer.getTime!
+      print @get_beat!
 
     true
 

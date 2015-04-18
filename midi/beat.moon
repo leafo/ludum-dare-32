@@ -3,7 +3,7 @@
   beats_per_measure: 4
   measures: 4
 
-  measure_groups: {
+  notes: {
     default: {
       rate: 1
       hits: "...."
