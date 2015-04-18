@@ -34,6 +34,17 @@ class Metronome extends Box
     true
 
 class TrackNotes
+  types: {
+    ["1"]: {
+      idx: 1
+      color: {100, 255, 100}
+    }
+    ["2"]: {
+      idx: 2
+      color: {100, 100, 255}
+    }
+  }
+
   new: (@track) =>
     assert @track.data.notes, "no measure groups for tracks"
 
@@ -85,17 +96,19 @@ class TrackNotes
         px * 2 + 2,1
 
 
-    COLOR\push 100, 255, 100
-
     for b=1,@beats
       group = @timeline[b]
       continue unless group
       for note in *group
-        g.rectangle "fill", px,
+        note_type = @types[note.type]
+        x = px + (note_type.idx - 1) * 3
+
+        COLOR\push unpack note_type.color
+        g.rectangle "fill", x,
           py + (note.beat - 1) * (bh + padding),
           bw, bh
 
-    COLOR\pop!
+        COLOR\pop!
 
     g.pop!
 
@@ -105,7 +118,7 @@ class TrackNotes
   parse_notes: (str, rate=1, offset=0) =>
     beat = offset
     notes = for t in str\gmatch "."
-      note = if t == "x"
+      note = if @types[t]
         { type: t, :beat }
 
       beat += 1 / rate

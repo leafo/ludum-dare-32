@@ -6,12 +6,12 @@
   notes: {
     default: {
       rate: 1
-      "x.x."
+      "1.1."
     }
 
     double: {
       rate: 2
-      "x.x.x.x."
+      "12121212"
     }
 
     "default"
