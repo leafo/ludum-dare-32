@@ -42,7 +42,7 @@ class TrackField extends Box
     upper = b - (@socket_offset / @pixels_per_beat)
     lower = b + @h / @pixels_per_beat
 
-    for note in @track.notes\each_notes upper, lower
+    for note in @track.notes\each_note upper, lower
       COLOR\push unpack note.color
       g.rectangle "fill", (note.col - 1) * @socket_spacing,
         (note.beat - upper) * @pixels_per_beat, 10, 10
@@ -65,14 +65,35 @@ class TrackField extends Box
 
   update: (dt) =>
     if CONTROLLER\tapped "one"
-      print "tapped one"
       @one_time = love.timer.getTime!
+      note, bd = @find_hit_note 1
+      print "one", note, bd
 
     if CONTROLLER\tapped "two"
-      print "tapped two"
       @two_time = love.timer.getTime!
+      note, bd = @find_hit_note 1
+      print "two", note, bd
 
     true
+
+  find_hit_note: (col) =>
+    b, q = @track\get_beat!
+    local min_note, min_d
+
+    bq = b + q
+    for note in @track.notes\each_note b - 1, b + 1
+      continue unless not col or note.col == col
+
+      if min_note
+        delta = math.abs note.beat - bq
+        if delta < min_d
+          min_note = note
+          min_d = delta
+      else
+        min_note = note
+        min_d = math.abs note.beat - bq
+
+    min_note, min_d
 
 class Game
   new: =>

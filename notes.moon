@@ -50,7 +50,7 @@ class TrackNotes
       for note in *group
         print " * [#{note.beat}] #{note.type}"
 
-  each_notes: (start, stop) =>
+  each_note: (start, stop) =>
     start = math.floor start
     stop = math.floor stop
 
