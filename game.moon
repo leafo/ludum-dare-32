@@ -32,7 +32,7 @@ class TrackField extends Box
     @vib_seq = nil
 
     @particles = DrawList!
-    @face = Face @track, 10, 10
+    @face = Face @track, 0, 0
 
   on_hit_note: (note) =>
     @hits += 1
@@ -86,7 +86,6 @@ class TrackField extends Box
 
     for note in @track.notes\each_note upper, lower
       note\draw @note_position note
-
 
     @face\draw!
     @particles\draw!
@@ -205,19 +204,19 @@ class Game
     @metronome = Metronome!
     @visibility = VisibilityMeter!
 
-    @list = VList { @visibility, @metronome }
+    @list = VList { @visibility }
     @hit_list = VList {}
 
     @ui = Bin 0, 0, @viewport.w, @viewport.h, HList {
       @list
-      VList {
-        Border VList({
-          Label -> "score: 0"
-          Label -> "chain: #{@field and @field.chain or 0}"
-          Label -> "hits: #{@field and @field.hits or 0}"
-        }), padding: 5
-        @hit_list
-      }
+      -- VList {
+      --   Border VList({
+      --     Label -> "score: 0"
+      --     Label -> "chain: #{@field and @field.chain or 0}"
+      --     Label -> "hits: #{@field and @field.hits or 0}"
+      --   }), padding: 5
+      --   @hit_list
+      -- }
     }
 
   on_hit_note: (note) =>
@@ -255,7 +254,7 @@ class Game
         @metronome\set_track @track
 
         @field = TrackField @, @track, 0,0
-        table.insert @list.items, 2, @field
+        table.insert @list.items, @field
 
   mousepressed: (mx,my) =>
     return unless @field

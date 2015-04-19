@@ -2,7 +2,7 @@
 {graphics: g} = love
 
 class Tongue
-  approx_h: 80
+  approx_h: 30
 
   sway_w: 40
 
@@ -30,7 +30,6 @@ class Tongue
 
   draw: =>
     path = CatmullRomPath!
-
     tx, ty = lerp(@default_x, @target_x, @lerp), lerp(@default_y, @target_y, @lerp)
 
     -- pre base point
@@ -51,11 +50,12 @@ class Tongue
     segs = [{x,y} for x, y in path\each_pt 0.5]
     seg_count = #segs
 
+    COLOR\push 195, 124, 94
     for {x, y} in *segs
       g.push!
 
       g.translate x,y
-      g.scale lerp(30, 15, z/seg_count), 10
+      g.scale lerp(20, 10, z/seg_count), lerp(10, 5, z/seg_count)
 
       c = lerp(100, 255, z/seg_count)
       COLOR\push c,c,c
@@ -67,10 +67,6 @@ class Tongue
 
       g.pop!
       z += 1
-
-    COLOR\push 255,100,100
-    g.setPointSize 10
-    g.point @x, @y
     COLOR\pop!
 
   update: (dt) =>
@@ -98,10 +94,17 @@ class Tongue
     @default_y = @y - @approx_h
 
 class Eye extends Box
-  w: 50
+  w: 40
   h: 20
 
   flash_a: 0
+
+  ox: 0
+  oy: 0
+
+  new: (@x,@y, opts)=>
+    for k,v in pairs opts
+      @[k] = v
 
   flash: =>
     @seq = Sequence ->
@@ -110,35 +113,44 @@ class Eye extends Box
       @seq = nil
 
   draw: =>
-    g.rectangle "line", @unpack!
     if @flash_a > 0
       COLOR\pusha math.floor @flash_a * 255
-      g.rectangle "fill", @unpack!
+      @sprite\draw @x + @ox, @y + @oy
       COLOR\pop!
+
+    g.rectangle "line", @unpack!
 
   update: (dt) =>
     @seq\update dt if @seq
     true
 
+
 class Face extends Box
+  lazy sprite: => imgfy "images/adit.png"
+
   eye_w: 20
   eye_h: 10
 
   eye_y: 50
 
-  w: 120
-  h: 180
+  w: 140
+  h: 210
 
   new: (@track, ...) =>
     super ...
 
     @eyes = {
-      Eye 10, @eye_y
-      Eye 80, @eye_y
+      Eye @x + 23, @y + 84, {
+        sprite: imgfy "images/eye-left.png"
+      }
+
+      Eye @x + 82, @y + 83, {
+        sprite: imgfy "images/eye-right.png"
+      }
     }
 
     cx = @center!
-    @tongue = Tongue @track, cx, @y + 160
+    @tongue = Tongue @track, cx + 5, @y + 155
 
   hit_eye: (col) =>
     eye = @eyes[col]
@@ -150,6 +162,8 @@ class Face extends Box
 
   draw: =>
     g.rectangle "line", @unpack!
+
+    @sprite\draw @x, @y
 
     for eye in *@eyes
       eye\draw!

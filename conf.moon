@@ -15,8 +15,8 @@ export GAME_CONFIG = {
 }
 
 love.conf = (t) ->
-  t.window.width = 320 * GAME_CONFIG.scale
-  t.window.height = 300 * GAME_CONFIG.scale
+  t.window.width = 200 * GAME_CONFIG.scale
+  t.window.height = 230 * GAME_CONFIG.scale
 
   t.title = "the game"
   t.author = "leafo"
