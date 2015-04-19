@@ -16,7 +16,7 @@ load_font = (img, chars)->
 love.load = ->
   fonts = {
     default: load_font "images/font.png",
-      [[ abcdefghijklmnopqrstuvwxyz-1234567890!.,:;'"?$&]]
+      [[ abcdefghijklmnopqrstuvwxyz-1234567890!.,:;'"?$&%]]
   }
 
   g.setFont fonts.default
