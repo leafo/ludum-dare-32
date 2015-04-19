@@ -1,12 +1,14 @@
 
 {graphics: g, audio: a} = love
 
-import Bin, HList, VList from require "lovekit.ui"
+import Bin, HList, VList, Label from require "lovekit.ui"
 
 import Metronome from require "ui"
 import Track from require "track"
 
 class TrackField extends Box
+  min_delta: 150
+
   socket_w: 20
   socket_h: 10
   pixels_per_beat: 50
@@ -16,7 +18,7 @@ class TrackField extends Box
 
   socket_fade: 0.2
 
-  new: (@track, ...) =>
+  new: (@game, @track, ...) =>
     super ...
     @notes_played = {}
     print "Created field"
@@ -43,10 +45,8 @@ class TrackField extends Box
     lower = b + @h / @pixels_per_beat
 
     for note in @track.notes\each_note upper, lower
-      COLOR\push unpack note.color
-      g.rectangle "fill", (note.col - 1) * @socket_spacing,
-        (note.beat - upper) * @pixels_per_beat, 10, 10
-      COLOR\pop!
+      note\draw (note.col - 1) * @socket_spacing,
+        (note.beat - upper) * @pixels_per_beat
 
     g.pop!
     g.setScissor!
@@ -64,15 +64,19 @@ class TrackField extends Box
       COLOR\pop!
 
   update: (dt) =>
+    local note, ds
+
     if CONTROLLER\tapped "one"
       @one_time = love.timer.getTime!
-      note, bd = @find_hit_note 1
-      print "one", note, bd
+      note, ds = @find_hit_note 1
 
     if CONTROLLER\tapped "two"
       @two_time = love.timer.getTime!
-      note, bd = @find_hit_note 1
-      print "two", note, bd
+      note, ds = @find_hit_note 2
+
+    if note
+      @game\append_hit ds
+      note.hit_delta = ds
 
     true
 
@@ -93,7 +97,12 @@ class TrackField extends Box
         min_note = note
         min_d = math.abs note.beat - bq
 
-    min_note, min_d
+
+    return unless min_note
+
+    ds = @track\beat_to_seconds min_d
+    return nil if ds > @min_delta
+    min_note, ds
 
 class Game
   new: =>
@@ -101,8 +110,19 @@ class Game
     @entities = EntityList!
 
     @metronome = Metronome!
+
     @list = VList { @metronome }
-    @ui = Bin 0, 0, @viewport.w, @viewport.h, @list
+    @hit_list = VList {}
+
+    @ui = Bin 0, 0, @viewport.w, @viewport.h, HList {
+      @list
+      @hit_list
+    }
+
+  append_hit: (bd) =>
+    table.insert @hit_list.items, 1, Label "#{math.floor bd * 1000}"
+    if #@hit_list.items == 11
+      @hit_list.items[11] = nil
 
   draw: =>
     @viewport\apply!
@@ -125,7 +145,7 @@ class Game
         @entities\add @track
         @metronome\set_track @track
 
-        @field = TrackField @track, 0,0, 200, 180
+        @field = TrackField @, @track, 0,0, 200, 180
         table.insert @list.items, @field
 
 { :Game }

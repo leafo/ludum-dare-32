@@ -1,8 +1,19 @@
 
 {graphics: g, audio: a} = love
 
-class Note
+class Note extends Box
+  w: 10
+  h: 10
+
   new: (@beat) =>
+
+  draw: (@x, @y) =>
+    COLOR\push unpack @color
+    g.rectangle "fill", @unpack!
+    COLOR\pop!
+
+    if @hit_delta
+      g.print "#{math.floor @hit_delta * 1000}", @x + @w, @y
 
 class Note1 extends Note
   color: {100, 255, 100}
@@ -48,7 +59,7 @@ class TrackNotes
       group = @timeline[b]
       continue unless group
       for note in *group
-        print " * [#{note.beat}] #{note.type}"
+        print " * [#{note.beat}] #{note.__class.__name}"
 
   each_note: (start, stop) =>
     start = math.floor start

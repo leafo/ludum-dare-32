@@ -57,6 +57,10 @@ class Track
     beat = offset * bps
     math.floor(beat) + 1, math.fmod(beat, 1)
 
+  beat_to_seconds: (beat) =>
+    minutes = beat / @data.bpm
+    minutes * 60
+
   -- in seconds
   duration: =>
     bps = 60 / @data.bpm
