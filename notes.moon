@@ -9,7 +9,9 @@ class Note extends Box
 
   draw: (@x, @y) =>
     COLOR\push unpack @color
+    COLOR\pusha 100 if @hit_delta
     g.rectangle "fill", @unpack!
+    COLOR\pop! if @hit_delta
     COLOR\pop!
 
     if @hit_delta
@@ -33,6 +35,7 @@ class TrackNotes
     assert @track.data.notes, "no measure groups for tracks"
 
     @timeline = {}
+    @all_notes = {}
     @beats = @track\duration_in_beats!
 
     beat_offset = 1
@@ -49,17 +52,15 @@ class TrackNotes
           root_beat = math.floor note.beat
           @timeline[root_beat] or= {}
           table.insert @timeline[root_beat], note
+          table.insert @all_notes, note
 
       beat_offset += @track.data.beats_per_measure
 
     @dump_notes!
 
   dump_notes: =>
-    for b=1,@beats
-      group = @timeline[b]
-      continue unless group
-      for note in *group
-        print " * [#{note.beat}] #{note.__class.__name}"
+    for note in *@all_notes
+      print " * [#{note.beat}] #{note.__class.__name}"
 
   each_note: (start, stop) =>
     start = math.floor start
@@ -107,6 +108,10 @@ class TrackNotes
 
   update: (dt) =>
     true
+
+  reset: =>
+    for note in *@all_notes
+      note.hit_delta = nil
 
   parse_notes: (str, rate=1, offset=0) =>
     beat = offset

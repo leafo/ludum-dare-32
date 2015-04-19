@@ -74,7 +74,7 @@ class Track
 
   loop_if_necessary: =>
     if @source\tell("seconds") > @duration!
-      print "Restart"
+      @notes\reset!
       @start!
 
   update_last_measure: =>
