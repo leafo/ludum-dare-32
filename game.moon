@@ -263,7 +263,7 @@ class TrackField extends Box
     @thresholds[#@thresholds][2]
 
 class Game
-  new: =>
+  new: (@stage) =>
     @viewport = DISPATCHER.viewport
     @entities = EntityList!
     @particles = DrawList!
@@ -325,7 +325,7 @@ class Game
     if CONTROLLER\downed "confirm"
       unless @track
         print "Queue track"
-        @track = Track "beat"
+        @track = Track @stage.module
         @track\prepare!
         @entities\add @track
         @metronome\set_track @track

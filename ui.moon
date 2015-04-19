@@ -88,15 +88,18 @@ class StatsSummary
     @stats.total_notes = #@track_field.track.notes.all_notes
     @stats.time_lasted = love.timer.getTime! - @track_field.track.last_start_time
 
+    p = (n) ->
+      "#{math.floor n/@stats.total_notes * 100}%"
+
     list = VList {
       Label "hits: #{@stats.hits}"
       Label "misses: #{@stats.misses}"
       Label "max chain: #{@stats.max_chain}"
-      Label "completion: #{math.floor @stats.hits/@stats.total_notes}%"
+      Label "completion: #{p @stats.hits}"
       Label "--"
-      Label "greats: #{@stats.hit_great}"
-      Label "good: #{@stats.hit_good}"
-      Label "meh: #{@stats.hit_meh}"
+      Label "greats: #{@stats.hit_great} #{p @stats.hit_great}"
+      Label "good: #{@stats.hit_good} #{p @stats.hit_good}"
+      Label "meh: #{@stats.hit_meh} #{p @stats.hit_meh}"
     }
 
     container = Border list, { padding: 10, border: false, background: {0,0,0,180}}
@@ -184,7 +187,7 @@ class StageSelect
     AUDIO\play "select"
     stage = @stages[@selected_item]
     import Game from require "game"
-    DISPATCHER\push Game!
+    DISPATCHER\push Game stage
 
   update: (dt) =>
     if CONTROLLER\tapped "down"
