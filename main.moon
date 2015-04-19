@@ -8,6 +8,7 @@ if pcall(-> require"inotify")
 export DEBUG = false
 
 import Game from require "game"
+import StageSelect from require "ui"
 
 load_font = (img, chars)->
   font_image = imgfy img
@@ -25,7 +26,7 @@ love.load = ->
   viewport = EffectViewport scale: GAME_CONFIG.scale, pixel_scale: true
 
   export CONTROLLER = Controller GAME_CONFIG.keys, "auto"
-  export DISPATCHER = Dispatcher Game viewport
+  export DISPATCHER = Dispatcher -> StageSelect!
 
   DISPATCHER.viewport = viewport
   DISPATCHER.default_transition = FadeTransition

@@ -254,7 +254,8 @@ class TrackField extends Box
     @thresholds[#@thresholds][2]
 
 class Game
-  new: (@viewport) =>
+  new: =>
+    @viewport = DISPATCHER.viewport
     @entities = EntityList!
     @particles = DrawList!
 
@@ -312,6 +313,4 @@ class Game
         @field = TrackField @, @track, 0,0
         table.insert @list.items, @field
 
-
-
-{ :Game }
+{ :Game, :TrackField }
