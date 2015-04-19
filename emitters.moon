@@ -39,5 +39,16 @@ class HitEmitter extends Emitter
       .dspin = (random_normal! - 0.5) * 5
       .dscale = random_normal!
 
+class SparkEmitter extends Emitter
+  count: 10
+  accel: Vec2d 0, 300
+  color: {255,255,255}
 
-{ :HitEmitter, :ThreshEmitter }
+  make_particle: (x,y) =>
+    with PixelParticle x, y
+      .color = @color
+      .accel = @accel
+      .vel = Vec2d(0, rand(-120, -150))\random_heading 40
+      .size = rand 2,6
+
+{ :HitEmitter, :SparkEmitter, :ThreshEmitter }

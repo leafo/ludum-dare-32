@@ -5,7 +5,7 @@ import Bin, HList, VList, Label, Border from require "lovekit.ui"
 
 import Metronome, VisibilityMeter from require "ui"
 import Track from require "track"
-import HitEmitter, ThreshEmitter from require "emitters"
+import HitEmitter, SparkEmitter, ThreshEmitter from require "emitters"
 
 import Face, Tongue from require "face"
 
@@ -41,6 +41,7 @@ class TrackField extends Box
     nx, ny = @note_position note
 
     @particles\add HitEmitter note, @, nx, ny
+    @particles\add SparkEmitter @, nx, ny
 
     thresh = @threshold_for_delta note.hit_delta
     @particles\add ThreshEmitter thresh, @, nx,ny
