@@ -26,7 +26,14 @@ class TrackField extends Box
   pixels_per_beat: 50
 
   chain: 0
+  max_chain: 0
+
   hits: 0
+  misses: 0
+
+  hit_great: 0
+  hit_good: 0
+  hit_meh: 0
 
   new: (@game, @track, ...) =>
     super ...
@@ -39,12 +46,14 @@ class TrackField extends Box
   on_hit_note: (note) =>
     @hits += 1
     @chain += 1
+    @max_chain = math.max @max_chain, @chain
 
     nx, ny = @note_position note
 
     @eat_note note
 
     thresh = @threshold_for_delta note.hit_delta
+    @["hit_#{thresh}"] += 1
     @particles\add ThreshEmitter thresh, @, nx,ny
 
     @game\on_hit_note note
@@ -83,6 +92,7 @@ class TrackField extends Box
     if note
       nx, ny = @note_position note
       @particles\add BreakEmitter note, @, nx,ny
+      @misses += 1
 
       @face\on_eye_pain note.col
 
