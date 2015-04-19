@@ -31,3 +31,12 @@ love.load = ->
   DISPATCHER.default_transition = FadeTransition
   DISPATCHER\bind love
 
+  export AUDIO = Audio "sounds"
+
+  AUDIO\preload {
+    "menu"
+    "miss"
+    "select"
+  }
+
+
