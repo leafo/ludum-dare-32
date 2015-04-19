@@ -39,10 +39,17 @@ class TrackField extends Box
   on_hit_note: (note) =>
     @hits += 1
     @chain += 1
+
+    @particles\add HitEmitter @, @note_position note
+
+    -- thresh = @threshold_for_delta note.hit_delta
+    -- @particles\add TextEmitter "piss", @, x,y
+
     @game\on_hit_note note
 
   -- note might be nil if it was a mis-press
   on_miss_note: (note) =>
+
     @chain = 0
     if joystick = CONTROLLER.joystick
       @vib_seq = Sequence ->
@@ -73,13 +80,13 @@ class TrackField extends Box
     @current_top = upper
 
     for note in @track.notes\each_note upper, lower
-      note\draw (note.col - 1) * @socket_spacing + @socket_w / 2,
-        (note.beat - upper) * @pixels_per_beat
+      note\draw @note_position note
 
     g.setScissor!
-    g.pop!
 
     @particles\draw!
+
+    g.pop!
 
   -- get the bottom and top in beats
   get_bounds: =>
@@ -103,7 +110,8 @@ class TrackField extends Box
       COLOR\pop!
 
   update: (dt) =>
-    return unless @track.playing
+    @particles\update dt
+    return true unless @track.playing
 
     local note, delta, pressed
 
@@ -179,12 +187,9 @@ class TrackField extends Box
 
   -- relative to viewport
   note_position: (note) =>
-    x = @x + (note.col - 1) * @socket_spacing + @socket_w / 2
-
-    upper = @current_top
-    y = @y + (note.beat - upper) * @pixels_per_beat
-
-    x,y
+    x = (note.col - 1) * @socket_spacing + @socket_w / 2
+    y = (note.beat - @current_top) * @pixels_per_beat
+    x, y
 
   threshold_for_delta: (delta) =>
     for {t, name} in *@thresholds
@@ -192,7 +197,6 @@ class TrackField extends Box
         return name
 
     @thresholds[#@thresholds][2]
-
 
 class Game
   new: =>
@@ -218,11 +222,7 @@ class Game
     }
 
   on_hit_note: (note) =>
-    x, y = @field\note_position note
-    @particles\add HitEmitter @, x,y
     @append_hit note.hit_delta
-    -- thresh = @threshold_for_delta note.hit_delta
-    -- @particles\add TextEmitter "piss", @, x,y
 
   append_hit: (delta) =>
     table.insert @hit_list.items, 1, Label "#{math.floor delta}"
