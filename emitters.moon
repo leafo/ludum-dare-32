@@ -17,34 +17,27 @@ class ThreshEmitter extends TextEmitter
       p.accel = @accel
       p.color = @colors[@str]
 
-class HitParticle extends PixelParticle
-  new: (...) =>
-    super ...
-    @size = rand 2, 6
-
-  draw: =>
-    alpha = math.floor @fade_out! * 255
-
-    if alpha != 255
-      COLOR\pusha alpha
-
-    super!
-
-    if alpha != 255
-      COLOR\pop!
-
-
 class HitEmitter extends Emitter
   accel: Vec2d 0, 300
   count: 5
 
+  new: (@note, ...) =>
+    super ...
+
   make_particle: (x,y) =>
     x += rand -10, 10
     y += rand -10, 10
-
     vr = (random_normal! - 0.5) * 2
 
-    vel = Vec2d(0,-100  + -80 * vr)\random_heading 30
-    HitParticle x,y, vel, @accel
+    with ImageParticle x, y
+      .accel = @accel
+      .vel = Vec2d(0, -130  + -80 * vr)\random_heading 30
+      .sprite = @note.sprite
+      .quad = pick_one unpack @note.debris
+      .w = @note.debris.w
+      .h = @note.debris.h
+      .dspin = (random_normal! - 0.5) * 5
+      .dscale = random_normal!
+
 
 { :HitEmitter, :ThreshEmitter }

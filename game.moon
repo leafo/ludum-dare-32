@@ -40,7 +40,7 @@ class TrackField extends Box
 
     nx, ny = @note_position note
 
-    @particles\add HitEmitter @, nx, ny
+    @particles\add HitEmitter note, @, nx, ny
 
     thresh = @threshold_for_delta note.hit_delta
     @particles\add ThreshEmitter thresh, @, nx,ny
@@ -84,10 +84,11 @@ class TrackField extends Box
     upper, lower = @get_bounds!
     @current_top = upper
 
+    @face\draw!
+
     for note in @track.notes\each_note upper, lower
       note\draw @note_position note
 
-    @face\draw!
     @particles\draw!
 
     g.pop!

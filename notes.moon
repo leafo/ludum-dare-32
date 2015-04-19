@@ -1,7 +1,7 @@
 
 {graphics: g, audio: a} = love
 
-class Note extends Box
+class Note
   w: 10
   h: 10
 
@@ -9,31 +9,53 @@ class Note extends Box
 
   draw: (@x, @y) =>
     faded = @hit_delta or @missed
-    COLOR\push @color[1], @color[2], @color[3], faded and 100 or 255
-
-    g.rectangle "fill",
-      @x - @w/2, @y - @h/2,
-      @w, @h
-
-    COLOR\pop!
-
-    if @missed
-      COLOR\push 255, 100, 100
-
-      g.rectangle "line",
-        @x - @w/2 - 2, @y - @h/2 -2,
-        @w + 4, @h + 4
-
-      COLOR\pop!
 
     if @hit_delta
       g.print "#{math.floor @hit_delta}", @x + @w, @y
 
+    return if faded
+
+    @sprite\draw @quad, @x + @ox, @y + @oy
+
+    g.rectangle "line",
+      @x - @w/2, @y - @h/2,
+      @w, @h
+
+
 class Note1 extends Note
+  lazy sprite: => Spriter "images/candy1.png"
+  ox: -13
+  oy: -7
+
+  quad: "8,5,23,17"
+
+  debris: {
+    w: 9
+    h:10
+    "8,25,9,10"
+    "24,24,9,10"
+    "24,24,9,10"
+    "17,34,9,10"
+  }
+
   color: {100, 255, 100}
   col: 1
 
 class Note2 extends Note
+  lazy sprite: => Spriter "images/candy2.png"
+  quad: "5,4,23,14"
+
+  ox: -12
+  oy: -5
+
+  debris: {
+    w: 8
+    h: 10
+    "5,19,8,10"
+    "14,26,8,10"
+    "24,20,8,10"
+  }
+
   color: {100, 100, 255}
   col: 2
 
@@ -138,4 +160,4 @@ class TrackNotes
 
     notes
 
-{ :TrackNotes }
+{ :TrackNotes, :Note, :Note1, :Note2 }
