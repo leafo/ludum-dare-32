@@ -10,7 +10,7 @@ class Note extends Box
   draw: (@x, @y) =>
     COLOR\push unpack @color
     COLOR\pusha 100 if @hit_delta
-    g.rectangle "fill", @unpack!
+    g.rectangle "fill", @x - @w/2, @y - @h/2, @w, @h
     COLOR\pop! if @hit_delta
     COLOR\pop!
 
