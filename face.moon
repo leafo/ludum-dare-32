@@ -127,7 +127,13 @@ class Eye extends Box
 
 
 class Face extends Box
-  lazy sprite: => imgfy "images/adit.png"
+  lazy {
+    sprite: => imgfy "images/adit.png"
+    pain_sprite: => Spriter "images/adit-pain.png"
+  }
+
+  pain_left: "28,86,29,17"
+  pain_right: "85,85,32,17"
 
   eye_w: 20
   eye_h: 10
@@ -161,6 +167,12 @@ class Face extends Box
   eye_offset: (col=1) =>
     @eyes[col]\center!
 
+  on_eye_pain: (col) =>
+    name = col == 1 and "left" or "right"
+    @["#{name}_hurts"] = Sequence ->
+      wait 0.5
+      @["#{name}_hurts"] = nil
+
   draw: =>
     if DEBUG
       g.rectangle "line", @unpack!
@@ -171,6 +183,13 @@ class Face extends Box
     g.translate -@tongue.x, -@tongue.y
 
     @sprite\draw @x, @y
+
+    if @left_hurts
+      @pain_sprite\draw @pain_left, @x + 28, @y + 86
+
+    if @right_hurts
+      @pain_sprite\draw @pain_right, @x + 85, @y + 85
+
     g.pop!
 
     for eye in *@eyes
@@ -180,6 +199,10 @@ class Face extends Box
 
   update: (dt) =>
     @tongue\update dt
+
+    @left_hurts\update dt if @left_hurts
+    @right_hurts\update dt if @right_hurts
+
     for eye in *@eyes
       eye\update dt
 

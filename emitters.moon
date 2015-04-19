@@ -11,6 +11,7 @@ class ThreshEmitter extends TextEmitter
     with p = TextParticle @str, ...
       p.dscale = 1
       p.dspin = math.random!
+      p.scale = 1.5
 
       vr = (random_normal! - 0.5) * 2
       p.vel = Vec2d(0,-100  + -80 * vr)\random_heading 30

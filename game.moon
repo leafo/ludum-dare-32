@@ -84,6 +84,8 @@ class TrackField extends Box
       nx, ny = @note_position note
       @particles\add BreakEmitter note, @, nx,ny
 
+      @face\on_eye_pain note.col
+
       if from_hit
         @particles\add ThreshEmitter "miss", @, nx,ny
 
