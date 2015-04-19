@@ -145,6 +145,7 @@ class TrackField extends Box
     for note in @track.notes\each_note b - 1, b + 1
       continue unless not col or note.col == col
       continue if note.hit_delta
+      continue if note.missed
 
       if min_note
         delta = math.abs note.beat - bq
@@ -159,7 +160,11 @@ class TrackField extends Box
     return unless min_note
 
     delta = @track\beat_to_ms min_d
-    return nil if delta > @min_delta
+    if delta > @min_delta
+      min_note.missed = true
+      @on_miss_note min_note
+      return
+
     min_note, delta
 
   -- relative to viewport
