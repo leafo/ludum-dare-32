@@ -59,14 +59,19 @@ class Tongue
 
       c = lerp(100, 255, z/seg_count)
       COLOR\push c,c,c
-      g.circle "fill", -1,-1, 1, 8
+      g.circle "fill", 0, 0, 1, 8
       COLOR\push 220,220,220
-      g.circle "fill", -1,-1, 0.8, 8
+      g.circle "fill", 0,0, 0.8, 8
       COLOR\pop!
       COLOR\pop!
 
       g.pop!
       z += 1
+
+    COLOR\push 255,100,100
+    g.setPointSize 10
+    g.point @x, @y
+    COLOR\pop!
 
   update: (dt) =>
     @time += dt
@@ -92,4 +97,69 @@ class Tongue
     @default_x = @x + dx * @sway_w
     @default_y = @y - @approx_h
 
-{ :Tongue }
+class Eye extends Box
+  w: 50
+  h: 20
+
+  flash_a: 0
+
+  flash: =>
+    @seq = Sequence ->
+      @flash_a = 1
+      tween @, 0.2, flash_a: 0
+      @seq = nil
+
+  draw: =>
+    g.rectangle "line", @unpack!
+    if @flash_a > 0
+      COLOR\pusha math.floor @flash_a * 255
+      g.rectangle "fill", @unpack!
+      COLOR\pop!
+
+  update: (dt) =>
+    @seq\update dt if @seq
+    true
+
+class Face extends Box
+  eye_w: 20
+  eye_h: 10
+
+  eye_y: 50
+
+  w: 120
+  h: 180
+
+  new: (@track, ...) =>
+    super ...
+
+    @eyes = {
+      Eye 10, @eye_y
+      Eye 80, @eye_y
+    }
+
+    cx = @center!
+    @tongue = Tongue @track, cx, @y + 160
+
+  hit_eye: (col) =>
+    eye = @eyes[col]
+    eye\flash!
+    @tongue\move eye\center!
+
+  eye_offset: (col=1) =>
+    @eyes[col]\center!
+
+  draw: =>
+    g.rectangle "line", @unpack!
+
+    for eye in *@eyes
+      eye\draw!
+
+    @tongue\draw!
+
+  update: (dt) =>
+    @tongue\update dt
+    for eye in *@eyes
+      eye\update dt
+
+
+{ :Face, :Tongue }

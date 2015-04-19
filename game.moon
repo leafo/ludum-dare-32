@@ -7,9 +7,12 @@ import Metronome from require "ui"
 import Track from require "track"
 import HitEmitter, ThreshEmitter from require "emitters"
 
-import Tongue from require "face"
+import Face, Tongue from require "face"
 
 class TrackField extends Box
+  w: 200
+  h: 200
+
   min_delta: 120
   
   thresholds: {
@@ -18,14 +21,7 @@ class TrackField extends Box
     {120, "meh"}
   }
 
-  socket_w: 20
-  socket_h: 10
   pixels_per_beat: 50
-
-  socket_offset: 50
-  socket_spacing: 50
-
-  socket_fade: 0.2
 
   chain: 0
   hits: 0
@@ -33,11 +29,10 @@ class TrackField extends Box
   new: (@game, @track, ...) =>
     super ...
     @notes_played = {}
-    print "Created field"
     @vib_seq = nil
 
     @particles = DrawList!
-    @tongue = Tongue @track, 100, 100
+    @face = Face @track, 10, 10
 
   on_hit_note: (note) =>
     @hits += 1
@@ -80,12 +75,7 @@ class TrackField extends Box
     scale = GAME_CONFIG.scale
     g.setScissor @x * scale, @y * scale, @w * scale, @h * scale
 
-    -- draw sockets
-    @draw_socket 0, @one_time
-    @draw_socket @socket_spacing, @two_time
-
     upper, lower = @get_bounds!
-
     @current_top = upper
 
     for note in @track.notes\each_note upper, lower
@@ -93,8 +83,7 @@ class TrackField extends Box
 
     g.setScissor!
 
-    @tongue\draw!
-
+    @face\draw!
     @particles\draw!
 
     g.pop!
@@ -104,21 +93,11 @@ class TrackField extends Box
     b, q = @track\get_beat!
     b += q
 
-    upper = b - (@socket_offset / @pixels_per_beat)
-    lower = b + @h / @pixels_per_beat
+    _, offset_top = @face\eye_offset!
+
+    upper = b - (offset_top / @pixels_per_beat)
+    lower = b + (@h - offset_top) / @pixels_per_beat
     upper, lower
-
-  draw_socket: (x, push_time) =>
-    time = love.timer.getTime!
-    y,w,h = @socket_offset - @socket_h / 2, @socket_w, @socket_h
-
-    g.rectangle "line", x,y,w,h
-
-    if push_time and time - push_time < @socket_fade
-      a = 1 - (time - push_time) / @socket_fade
-      COLOR\pusha math.floor a * 255
-      g.rectangle "fill", x,y,w,h
-      COLOR\pop!
 
   update: (dt) =>
     @particles\update dt
@@ -131,12 +110,12 @@ class TrackField extends Box
 
     if CONTROLLER\downed "one"
       pressed = true
-      @one_time = love.timer.getTime!
+      @face\hit_eye 1
       note, delta = @find_hit_note 1
 
     if CONTROLLER\downed "two"
       pressed = true
-      @two_time = love.timer.getTime!
+      @face\hit_eye 2
       note, delta = @find_hit_note 2
 
     if note
@@ -147,7 +126,7 @@ class TrackField extends Box
 
     @mark_missed_notes!
 
-    @tongue\update dt
+    @face\update dt
 
     true
 
@@ -199,7 +178,7 @@ class TrackField extends Box
 
   -- relative to viewport
   note_position: (note) =>
-    x = (note.col - 1) * @socket_spacing + @socket_w / 2
+    x = @face.eyes[note.col]\center!
     y = (note.beat - @current_top) * @pixels_per_beat
     x, y
 
@@ -262,12 +241,12 @@ class Game
         @entities\add @track
         @metronome\set_track @track
 
-        @field = TrackField @, @track, 0,0, 200, 180
+        @field = TrackField @, @track, 0,0
         table.insert @list.items, @field
 
   mousepressed: (mx,my) =>
     return unless @field
     mx, my = @viewport\unproject mx, my
-    @field.tongue\move mx - @field.x, my - @field.y
+    -- @field.face.tongue\move mx - @field.x, my - @field.y
 
 { :Game }
