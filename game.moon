@@ -53,7 +53,8 @@ class TrackField extends Box
     @eat_note note
 
     thresh = @threshold_for_delta note.hit_delta
-    @["hit_#{thresh}"] += 1
+    -- moonscript bug
+    @["hit_#{thresh}"] = @["hit_#{thresh}"] + 1
     @particles\add ThreshEmitter thresh, @, nx,ny
 
     @game\on_hit_note note
@@ -116,31 +117,28 @@ class TrackField extends Box
         @vib_seq = nil
 
   draw: =>
-    return unless @track.playing
+    return unless @track.playing or @track.finished
 
     @bg\draw 10, @game.viewport.h - 140 + 2 * @track\sync_sin!
 
     if DEBUG
       g.rectangle "line", @unpack!
 
-    -- g.setStencil -> g.rectangle "fill", @unpack!
-
     g.push!
     g.translate @x, @y
 
-    upper, lower = @get_bounds!
-    @current_top = upper
-
     @face\draw!
 
-    for note in @track.notes\each_note upper, lower
-      note\draw @note_position note
+    unless @track.finished
+      upper, lower = @get_bounds!
+      @current_top = upper
+
+      for note in @track.notes\each_note upper, lower
+        note\draw @note_position note
 
     @particles\draw!
-
     g.pop!
 
-    -- g.setStencil!
 
   -- get the bottom and top in beats
   get_bounds: =>
@@ -155,30 +153,31 @@ class TrackField extends Box
 
   update: (dt) =>
     @particles\update dt
-    return true unless @track.playing
+    return true unless @track.playing or @track.finished
 
     local note, delta, pressed
 
     if @vib_seq
       @vib_seq\update dt
 
-    if CONTROLLER\downed "one"
-      pressed = true
-      @face\hit_eye 1
-      note, delta = @find_hit_note 1
+    unless @track.finished
+      if CONTROLLER\downed "one"
+        pressed = true
+        @face\hit_eye 1
+        note, delta = @find_hit_note 1
 
-    if CONTROLLER\downed "two"
-      pressed = true
-      @face\hit_eye 2
-      note, delta = @find_hit_note 2
+      if CONTROLLER\downed "two"
+        pressed = true
+        @face\hit_eye 2
+        note, delta = @find_hit_note 2
 
-    if note
-      note.hit_delta = delta
-      @on_hit_note note
-    elseif pressed and not delta
-      @on_miss_note nil
+      if note
+        note.hit_delta = delta
+        @on_hit_note note
+      elseif pressed and not delta
+        @on_miss_note nil
 
-    @mark_missed_notes!
+      @mark_missed_notes!
 
     @face\update dt
 

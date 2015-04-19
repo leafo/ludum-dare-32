@@ -32,6 +32,7 @@ class Track
   start: =>
     @preparing = false
     @playing = true
+    @finished = false
 
     @start_time = love.timer.getTime!
     @source\rewind!
@@ -75,10 +76,14 @@ class Track
   duration_in_measures: =>
     @data.measures
 
-  loop_if_necessary: =>
+  check_finished: =>
     if @source\tell("seconds") > @duration!
-      @notes\reset!
-      @start!
+      @stop!
+      @finished = true
+
+      -- for looping
+      -- @notes\reset!
+      -- @start!
 
   update_last_measure: =>
     time = love.timer.getTime!
@@ -94,6 +99,8 @@ class Track
     math.sin (b + q) * math.pi
 
   update: (dt) =>
+    return if @finished
+
     unless @prepared
       if @preparing
         @check_prepared!
@@ -108,11 +115,8 @@ class Track
       @start!
       return true
 
-    @loop_if_necessary!
+    @check_finished!
     @update_last_measure!
-
-    if CONTROLLER\tapped "confirm"
-      print @get_beat!
 
     true
 
