@@ -10,12 +10,25 @@ class Note extends Box
   draw: (@x, @y) =>
     COLOR\push unpack @color
     COLOR\pusha 100 if @hit_delta
-    g.rectangle "fill", @x - @w/2, @y - @h/2, @w, @h
+
+    g.rectangle "fill",
+      @x - @w/2, @y - @h/2,
+      @w, @h
+
     COLOR\pop! if @hit_delta
     COLOR\pop!
 
+    if @missed
+      COLOR\push 255, 100, 100
+
+      g.rectangle "line",
+        @x - @w/2 - 2, @y - @h/2 -2,
+        @w + 4, @h + 4
+
+      COLOR\pop!
+
     if @hit_delta
-      g.print "#{math.floor @hit_delta * 1000}", @x + @w, @y
+      g.print "#{math.floor @hit_delta}", @x + @w, @y
 
 class Note1 extends Note
   color: {100, 255, 100}
@@ -112,6 +125,7 @@ class TrackNotes
   reset: =>
     for note in *@all_notes
       note.hit_delta = nil
+      note.missed = nil
 
   parse_notes: (str, rate=1, offset=0) =>
     beat = offset

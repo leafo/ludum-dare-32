@@ -42,13 +42,9 @@ class TrackField extends Box
     @draw_socket 0, @one_time
     @draw_socket @socket_spacing, @two_time
 
-    b, q = @track\get_beat!
-    b += q
+    upper, lower = @get_bounds!
 
-    @current_beat = b
-
-    upper = b - (@socket_offset / @pixels_per_beat)
-    lower = b + @h / @pixels_per_beat
+    @current_top = upper
 
     for note in @track.notes\each_note upper, lower
       note\draw (note.col - 1) * @socket_spacing + @socket_w / 2,
@@ -56,6 +52,15 @@ class TrackField extends Box
 
     g.pop!
     g.setScissor!
+
+  -- get the bottom and top in beats
+  get_bounds: =>
+    b, q = @track\get_beat!
+    b += q
+
+    upper = b - (@socket_offset / @pixels_per_beat)
+    lower = b + @h / @pixels_per_beat
+    upper, lower
 
   draw_socket: (x, push_time) =>
     time = love.timer.getTime!
@@ -70,24 +75,43 @@ class TrackField extends Box
       COLOR\pop!
 
   update: (dt) =>
-    local note, ds
+    return unless @track.playing
+
+    local note, delta
 
     if CONTROLLER\tapped "one"
       @one_time = love.timer.getTime!
-      note, ds = @find_hit_note 1
+      note, delta = @find_hit_note 1
 
     if CONTROLLER\tapped "two"
       @two_time = love.timer.getTime!
-      note, ds = @find_hit_note 2
+      note, delta = @find_hit_note 2
 
     if note
-      note.hit_delta = ds
+      note.hit_delta = delta
+      @game\on_hit_note note
+
       @hits += 1
       @chain += 1
-      @game\on_hit_note note, ds
 
+    @mark_missed_notes!
     true
 
+  mark_missed_notes: =>
+    b, q = @track\get_beat!
+    b += q
+
+    for note in @track.notes\each_note @get_bounds!
+      continue if note.hit_delta
+      continue if note.missed
+
+      beat_delta = b - note.beat
+      if beat_delta > 0
+        delta = @track\beat_to_ms beat_delta
+        if delta > @min_delta
+          note.missed = true
+
+  -- returns note, delta is ms
   find_hit_note: (col) =>
     b, q = @track\get_beat!
     local min_note, min_d
@@ -109,15 +133,15 @@ class TrackField extends Box
 
     return unless min_note
 
-    ds = @track\beat_to_seconds min_d
-    return nil if ds > @min_delta
-    min_note, ds
+    delta = @track\beat_to_ms min_d
+    return nil if delta > @min_delta
+    min_note, delta
 
   -- relative to viewport
   note_position: (note) =>
     x = @x + (note.col - 1) * @socket_spacing + @socket_w / 2
 
-    upper = @current_beat - (@socket_offset / @pixels_per_beat)
+    upper = @current_top
     y = @y + (note.beat - upper) * @pixels_per_beat
 
     x,y
@@ -146,16 +170,14 @@ class Game
       }
     }
 
-  on_hit_note: (note, bs) =>
+  on_hit_note: (note) =>
     x, y = @field\note_position note
     @particles\add HitEmitter @, x,y
-    @append_hit bs
+    @append_hit note.hit_delta
 
-  append_hit: (bs) =>
-    table.insert @hit_list.items, 1, Label "#{math.floor bs * 1000}"
-
-    if #@hit_list.items == 11
-      @hit_list.items[11] = nil
+  append_hit: (delta) =>
+    table.insert @hit_list.items, 1, Label "#{math.floor delta}"
+    @hit_list.items[11] = nil
 
   draw: =>
     @viewport\apply!

@@ -61,6 +61,9 @@ class Track
     minutes = beat / @data.bpm
     minutes * 60
 
+  beat_to_ms: (beat) =>
+    @beat_to_seconds(beat) * 1000
+
   -- in seconds
   duration: =>
     bps = 60 / @data.bpm
