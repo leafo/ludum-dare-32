@@ -82,6 +82,8 @@ class TrackField extends Box
 
     if note
       note.hit_delta = ds
+      @hits += 1
+      @chain += 1
       @game\on_hit_note note, ds
 
     true
@@ -93,6 +95,7 @@ class TrackField extends Box
     bq = b + q
     for note in @track.notes\each_note b - 1, b + 1
       continue unless not col or note.col == col
+      continue if note.hit_delta
 
       if min_note
         delta = math.abs note.beat - bq
@@ -135,8 +138,9 @@ class Game
       @list
       VList {
         Border VList({
-          Label -> "score: "
-          Label -> "chain: "
+          Label -> "score: 0"
+          Label -> "chain: #{@field and @field.chain or 0}"
+          Label -> "hits: #{@field and @field.hits or 0}"
         }), padding: 5
         @hit_list
       }
@@ -149,6 +153,7 @@ class Game
 
   append_hit: (bs) =>
     table.insert @hit_list.items, 1, Label "#{math.floor bs * 1000}"
+
     if #@hit_list.items == 11
       @hit_list.items[11] = nil
 
