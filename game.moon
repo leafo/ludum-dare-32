@@ -9,6 +9,12 @@ import HitEmitter from require "emitters"
 
 class TrackField extends Box
   min_delta: 120
+  
+  thresholds: {
+    {20, "great"}
+    {60, "good"}
+    {120, "meh"}
+  }
 
   socket_w: 20
   socket_h: 10
@@ -27,6 +33,8 @@ class TrackField extends Box
     @notes_played = {}
     print "Created field"
     @vib_seq = nil
+
+    @particles = DrawList!
 
   on_hit_note: (note) =>
     @hits += 1
@@ -50,11 +58,11 @@ class TrackField extends Box
 
     g.rectangle "line", @unpack!
 
-    scale = GAME_CONFIG.scale
-    g.setScissor @x * scale, @y * scale, @w * scale, @h * scale
-
     g.push!
     g.translate @x, @y
+
+    scale = GAME_CONFIG.scale
+    g.setScissor @x * scale, @y * scale, @w * scale, @h * scale
 
     -- draw sockets
     @draw_socket 0, @one_time
@@ -68,8 +76,10 @@ class TrackField extends Box
       note\draw (note.col - 1) * @socket_spacing + @socket_w / 2,
         (note.beat - upper) * @pixels_per_beat
 
-    g.pop!
     g.setScissor!
+    g.pop!
+
+    @particles\draw!
 
   -- get the bottom and top in beats
   get_bounds: =>
@@ -176,6 +186,13 @@ class TrackField extends Box
 
     x,y
 
+  threshold_for_delta: (delta) =>
+    for {t, name} in *@thresholds
+      if delta < t
+        return name
+
+    @thresholds[#@thresholds][2]
+
 
 class Game
   new: =>
@@ -204,6 +221,8 @@ class Game
     x, y = @field\note_position note
     @particles\add HitEmitter @, x,y
     @append_hit note.hit_delta
+    -- thresh = @threshold_for_delta note.hit_delta
+    -- @particles\add TextEmitter "piss", @, x,y
 
   append_hit: (delta) =>
     table.insert @hit_list.items, 1, Label "#{math.floor delta}"
@@ -212,7 +231,6 @@ class Game
   draw: =>
     @viewport\apply!
     @ui\draw!
-    @particles\draw!
 
     if notes = @track and @track.notes
       notes\draw!
