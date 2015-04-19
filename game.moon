@@ -5,7 +5,7 @@ import Bin, HList, VList, Label, Border from require "lovekit.ui"
 
 import Metronome from require "ui"
 import Track from require "track"
-import HitEmitter from require "emitters"
+import HitEmitter, ThreshEmitter from require "emitters"
 
 class TrackField extends Box
   min_delta: 120
@@ -40,17 +40,23 @@ class TrackField extends Box
     @hits += 1
     @chain += 1
 
-    @particles\add HitEmitter @, @note_position note
+    nx, ny = @note_position note
 
-    -- thresh = @threshold_for_delta note.hit_delta
-    -- @particles\add TextEmitter "piss", @, x,y
+    @particles\add HitEmitter @, nx, ny
+
+    thresh = @threshold_for_delta note.hit_delta
+    @particles\add ThreshEmitter thresh, @, nx,ny
 
     @game\on_hit_note note
 
   -- note might be nil if it was a mis-press
-  on_miss_note: (note) =>
-
+  on_miss_note: (note, from_hit) =>
     @chain = 0
+
+    if from_hit and note
+      nx, ny = @note_position note
+      @particles\add ThreshEmitter "miss", @, nx,ny
+
     if joystick = CONTROLLER.joystick
       @vib_seq = Sequence ->
         print "vibrate start"
@@ -131,7 +137,7 @@ class TrackField extends Box
     if note
       note.hit_delta = delta
       @on_hit_note note
-    elseif pressed
+    elseif pressed and not delta
       @on_miss_note nil
 
     @mark_missed_notes!
@@ -180,8 +186,8 @@ class TrackField extends Box
     delta = @track\beat_to_ms min_d
     if delta > @min_delta
       min_note.missed = true
-      @on_miss_note min_note
-      return
+      @on_miss_note min_note, true
+      return nil, true
 
     min_note, delta
 

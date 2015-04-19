@@ -1,4 +1,22 @@
 
+class ThreshEmitter extends TextEmitter
+  accel: Vec2d 0, 300
+  colors: {
+    "good": {241, 216,82}
+    "great": {180, 255, 180}
+    "miss": {180, 180, 180}
+  }
+
+  make_particle: (...) =>
+    with p = TextParticle @str, ...
+      p.dscale = 1
+      p.dspin = math.random!
+
+      vr = (random_normal! - 0.5) * 2
+      p.vel = Vec2d(0,-100  + -80 * vr)\random_heading 30
+      p.accel = @accel
+      p.color = @colors[@str]
+
 class HitParticle extends PixelParticle
   new: (...) =>
     super ...
@@ -29,4 +47,4 @@ class HitEmitter extends Emitter
     vel = Vec2d(0,-100  + -80 * vr)\random_heading 30
     HitParticle x,y, vel, @accel
 
-{ :HitEmitter }
+{ :HitEmitter, :ThreshEmitter }

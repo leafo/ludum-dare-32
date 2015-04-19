@@ -8,14 +8,13 @@ class Note extends Box
   new: (@beat) =>
 
   draw: (@x, @y) =>
-    COLOR\push unpack @color
-    COLOR\pusha 100 if @hit_delta
+    faded = @hit_delta or @missed
+    COLOR\push @color[1], @color[2], @color[3], faded and 100 or 255
 
     g.rectangle "fill",
       @x - @w/2, @y - @h/2,
       @w, @h
 
-    COLOR\pop! if @hit_delta
     COLOR\pop!
 
     if @missed
