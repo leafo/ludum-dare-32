@@ -17,7 +17,7 @@ class ThreshEmitter extends TextEmitter
       p.accel = @accel
       p.color = @colors[@str]
 
-class HitEmitter extends Emitter
+class BreakEmitter extends Emitter
   accel: Vec2d 0, 300
   count: 5
 
@@ -51,4 +51,4 @@ class SparkEmitter extends Emitter
       .vel = Vec2d(0, rand(-120, -150))\random_heading 40
       .size = rand 2,6
 
-{ :HitEmitter, :SparkEmitter, :ThreshEmitter }
+{ :BreakEmitter, :SparkEmitter, :ThreshEmitter }

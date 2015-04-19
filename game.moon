@@ -5,13 +5,13 @@ import Bin, HList, VList, Label, Border from require "lovekit.ui"
 
 import Metronome, VisibilityMeter from require "ui"
 import Track from require "track"
-import HitEmitter, SparkEmitter, ThreshEmitter from require "emitters"
+import BreakEmitter, SparkEmitter, ThreshEmitter from require "emitters"
 
 import Face, Tongue from require "face"
 
 class TrackField extends Box
-  w: 200
-  h: 200
+  w: 140
+  h: 240
 
   min_delta: 120
   
@@ -40,21 +40,50 @@ class TrackField extends Box
 
     nx, ny = @note_position note
 
-    @particles\add HitEmitter note, @, nx, ny
-    @particles\add SparkEmitter @, nx, ny
+    @eat_note note
 
     thresh = @threshold_for_delta note.hit_delta
     @particles\add ThreshEmitter thresh, @, nx,ny
 
     @game\on_hit_note note
 
+  eat_note: (note) =>
+    nx, ny = @note_position note
+
+    spark = @particles\add SparkEmitter @, nx, ny
+
+    local sprite
+    seq = Sequence ->
+      tween sprite, 0.2, x: @face.tongue.x, y: @face.tongue.y
+      tween sprite, 0.1, a: 0
+
+    sprite = {
+      a: 1
+      x: nx, y: ny
+
+      update: (dt) =>
+        with seq\update dt
+          spark.x = @x
+          spark.y = @y
+
+      draw: =>
+        COLOR\pusha 255 * @a
+        note.sprite\draw note.quad, @x + note.ox, @y + note.oy
+        COLOR\pop!
+
+    }
+    @particles\add sprite
+
   -- note might be nil if it was a mis-press
   on_miss_note: (note, from_hit) =>
     @chain = 0
 
-    if from_hit and note
+    if note
       nx, ny = @note_position note
-      @particles\add ThreshEmitter "miss", @, nx,ny
+      @particles\add BreakEmitter note, @, nx,ny
+
+      if from_hit
+        @particles\add ThreshEmitter "miss", @, nx,ny
 
     @shake!
 

@@ -52,9 +52,10 @@ class Bar extends Box
 
 class VisibilityMeter extends VList
   p: 0.5
+  w: 140
 
   new: =>
-    @bar = Bar 0,0, 200, 10
+    @bar = Bar 0,0, 140, 10
 
     super {
       Label "visibility"

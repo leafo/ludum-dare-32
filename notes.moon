@@ -17,9 +17,10 @@ class Note
 
     @sprite\draw @quad, @x + @ox, @y + @oy
 
-    g.rectangle "line",
-      @x - @w/2, @y - @h/2,
-      @w, @h
+    if DEBUG
+      g.rectangle "line",
+        @x - @w/2, @y - @h/2,
+        @w, @h
 
 
 class Note1 extends Note
