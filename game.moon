@@ -37,8 +37,7 @@ class TrackField extends Box
     @vib_seq = nil
 
     @particles = DrawList!
-
-    @tongue = Tongue 100, 100
+    @tongue = Tongue @track, 100, 100
 
   on_hit_note: (note) =>
     @hits += 1
@@ -148,11 +147,7 @@ class TrackField extends Box
 
     @mark_missed_notes!
 
-    mx, my = love.mouse.getPosition!
-    mx, my = @game.viewport\unproject mx, my
-
     @tongue\update dt
-    @tongue\move mx - @x, my - @y
 
     true
 
@@ -269,5 +264,10 @@ class Game
 
         @field = TrackField @, @track, 0,0, 200, 180
         table.insert @list.items, @field
+
+  mousepressed: (mx,my) =>
+    return unless @field
+    mx, my = @viewport\unproject mx, my
+    @field.tongue\move mx - @field.x, my - @field.y
 
 { :Game }
