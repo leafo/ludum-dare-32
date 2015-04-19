@@ -7,6 +7,8 @@ import Metronome from require "ui"
 import Track from require "track"
 import HitEmitter, ThreshEmitter from require "emitters"
 
+import Tongue from require "face"
+
 class TrackField extends Box
   min_delta: 120
   
@@ -35,6 +37,8 @@ class TrackField extends Box
     @vib_seq = nil
 
     @particles = DrawList!
+
+    @tongue = Tongue 100, 100
 
   on_hit_note: (note) =>
     @hits += 1
@@ -90,6 +94,8 @@ class TrackField extends Box
 
     g.setScissor!
 
+    @tongue\draw!
+
     @particles\draw!
 
     g.pop!
@@ -142,8 +148,13 @@ class TrackField extends Box
 
     @mark_missed_notes!
 
-    true
+    mx, my = love.mouse.getPosition!
+    mx, my = @game.viewport\unproject mx, my
 
+    @tongue\update dt
+    @tongue\move mx - @x, my - @y
+
+    true
 
   mark_missed_notes: =>
     b, q = @track\get_beat!
