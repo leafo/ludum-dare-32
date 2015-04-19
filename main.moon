@@ -22,8 +22,12 @@ love.load = ->
   g.setFont fonts.default
   g.setBackgroundColor 10, 10, 10
 
+  viewport = EffectViewport scale: GAME_CONFIG.scale, pixel_scale: true
+
   export CONTROLLER = Controller GAME_CONFIG.keys, "auto"
-  export DISPATCHER = Dispatcher Game!
+  export DISPATCHER = Dispatcher Game viewport
+
+  DISPATCHER.viewport = viewport
   DISPATCHER.default_transition = FadeTransition
   DISPATCHER\bind love
 

@@ -244,8 +244,7 @@ class TrackField extends Box
     @thresholds[#@thresholds][2]
 
 class Game
-  new: =>
-    @viewport = EffectViewport scale: GAME_CONFIG.scale, pixel_scale: true
+  new: (@viewport) =>
     @entities = EntityList!
     @particles = DrawList!
 
@@ -279,16 +278,12 @@ class Game
     @hit_list.items[11] = nil
 
   draw: =>
-    @viewport\apply!
     @ui\draw!
 
     if notes = @track and @track.notes
       notes\draw!
 
-    @viewport\pop!
-
   update: (dt) =>
-    @viewport\update dt
     @ui\update dt
     @entities\update dt
     @particles\update dt
