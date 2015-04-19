@@ -5,4 +5,5 @@ all: beat.ogg
 
 %.ogg: %.mid
 	timidity $< -Ow -o $<.wav
-	oggenc -q 3 -o $@ $<.wav
+	sox $<.wav $<.loud.wav compand 0.3,1 6:-70,-60,-20 -5 -90 0.2
+	oggenc -q 3 -o $@ $<.loud.wav
