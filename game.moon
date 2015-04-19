@@ -43,6 +43,16 @@ class TrackField extends Box
     @particles = DrawList!
     @face = Face @track, 0, 0
 
+    @main_seq = Sequence ->
+      wait_until -> @track.finished
+      import StatsSummary from require "ui"
+      DISPATCHER\push StatsSummary @
+
+  on_game_over: =>
+    print "entering game over"
+    @track\stop!
+    @track.finished = true
+
   on_hit_note: (note) =>
     @hits += 1
     @chain += 1
@@ -153,6 +163,9 @@ class TrackField extends Box
 
   update: (dt) =>
     @particles\update dt
+    @main_seq\update dt if @main_seq
+    @face\update dt
+
     return true unless @track.playing or @track.finished
 
     local note, delta, pressed
@@ -178,8 +191,6 @@ class TrackField extends Box
         @on_miss_note nil
 
       @mark_missed_notes!
-
-    @face\update dt
 
     true
 
@@ -288,6 +299,9 @@ class Game
     @particles\update dt
 
     if CONTROLLER\downed "confirm"
+      if @track
+        @field\on_game_over!
+
       unless @track
         print "Queue track"
         @track = Track "beat"
@@ -298,9 +312,6 @@ class Game
         @field = TrackField @, @track, 0,0
         table.insert @list.items, @field
 
-  mousepressed: (mx,my) =>
-    return unless @field
-    mx, my = @viewport\unproject mx, my
-    -- @field.face.tongue\move mx - @field.x, my - @field.y
+
 
 { :Game }

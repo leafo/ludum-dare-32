@@ -40,6 +40,7 @@ class Track
     @last_measure = -1
 
   stop: =>
+    @last_start_time = @start_time
     @start_time = nil
     @source\stop!
     @playing = false

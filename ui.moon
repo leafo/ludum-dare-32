@@ -1,6 +1,6 @@
 {graphics: g, audio: a} = love
 
-import VList, Label from require "lovekit.ui"
+import VList, Label, Border, Bin from require "lovekit.ui"
 
 class Metronome extends Box
   x: 0
@@ -72,4 +72,52 @@ class VisibilityMeter extends VList
   decrement: =>
     @p = math.max 0, @p - 0.1
 
-{ :Metronome, :VisibilityMeter }
+class StatsSummary
+  fields: {
+    "chain"
+    "hits"
+    "max_chain"
+    "misses"
+    "hit_great"
+    "hit_good"
+    "hit_meh"
+  }
+
+  new: (@track_field) =>
+    @stats = {f, @track_field[f] for f in *@fields}
+    @stats.total_notes = #@track_field.track.notes.all_notes
+    @stats.time_lasted = love.timer.getTime! - @track_field.track.last_start_time
+
+    list = VList {
+      Label "hits: #{@stats.hits}"
+      Label "misses: #{@stats.misses}"
+      Label "max chain: #{@stats.max_chain}"
+      Label "completion: #{math.floor @stats.hits/@stats.total_notes}%"
+      Label "--"
+      Label "greats: #{@stats.hit_great}"
+      Label "good: #{@stats.hit_good}"
+      Label "meh: #{@stats.hit_meh}"
+    }
+
+    container = Border list, { padding: 10, border: false, background: {0,0,0,180}}
+    @ui = Bin 0, 0, DISPATCHER.viewport.w, DISPATCHER.viewport.h, container
+
+    @main_seq = Sequence ->
+      wait 1.0
+      wait_until -> CONTROLLER\tapped "confirm"
+      error "go back to menu"
+      @main_seq = nil
+
+  update: (dt) =>
+    @ui\update dt
+    @main_seq\update dt if @main_seq
+
+  draw: =>
+    DISPATCHER\parent!\draw!
+    COLOR\push 40, 40, 70, 100
+    g.rectangle "fill", DISPATCHER.viewport\unpack!
+    COLOR\pop!
+
+    @ui\draw!
+
+{ :Metronome, :VisibilityMeter, :StatsSummary }
