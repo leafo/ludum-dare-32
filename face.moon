@@ -1,4 +1,6 @@
 
+{graphics: g} = love
+
 class Tongue
   approx_h: 80
 
@@ -45,7 +47,26 @@ class Tongue
     path\add tx, ty
     path\add tx, ty - @approx_h / 2
 
-    path\draw!
+    z = 0
+    segs = [{x,y} for x, y in path\each_pt 0.5]
+    seg_count = #segs
+
+    for {x, y} in *segs
+      g.push!
+
+      g.translate x,y
+      g.scale lerp(30, 15, z/seg_count), 10
+
+      c = lerp(100, 255, z/seg_count)
+      COLOR\push c,c,c
+      g.circle "fill", -1,-1, 1, 8
+      COLOR\push 220,220,220
+      g.circle "fill", -1,-1, 0.8, 8
+      COLOR\pop!
+      COLOR\pop!
+
+      g.pop!
+      z += 1
 
   update: (dt) =>
     @time += dt
