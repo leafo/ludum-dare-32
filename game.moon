@@ -76,11 +76,10 @@ class TrackField extends Box
 
     g.rectangle "line", @unpack!
 
+    g.setStencil -> g.rectangle "fill", @unpack!
+
     g.push!
     g.translate @x, @y
-
-    scale = GAME_CONFIG.scale
-    g.setScissor @x * scale, @y * scale, @w * scale, @h * scale
 
     upper, lower = @get_bounds!
     @current_top = upper
@@ -88,12 +87,13 @@ class TrackField extends Box
     for note in @track.notes\each_note upper, lower
       note\draw @note_position note
 
-    g.setScissor!
 
     @face\draw!
     @particles\draw!
 
     g.pop!
+
+    g.setStencil!
 
   -- get the bottom and top in beats
   get_bounds: =>
@@ -198,7 +198,7 @@ class TrackField extends Box
 
 class Game
   new: =>
-    @viewport = EffectViewport scale: GAME_CONFIG.scale
+    @viewport = EffectViewport scale: GAME_CONFIG.scale, pixel_scale: true
     @entities = EntityList!
     @particles = DrawList!
 

@@ -1,5 +1,5 @@
 export GAME_CONFIG = {
-  scale: 2
+  scale: 3
   keys: {
     confirm: { "x", " ", joystick: 1 }
     cancel: { "c", joystick: 2 }
