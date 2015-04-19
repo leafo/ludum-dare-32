@@ -16,7 +16,7 @@ class TrackField extends Box
   lazy bg: -> imgfy "images/seat.png"
 
   min_delta: 120
-  
+
   thresholds: {
     {20, "great"}
     {60, "good"}
@@ -112,6 +112,9 @@ class TrackField extends Box
 
     @shake!
 
+    if from_hit
+      AUDIO\play "miss"
+
     @game\on_miss_note note, from_hit
 
   shake: =>
@@ -161,6 +164,12 @@ class TrackField extends Box
     lower = b + (@h - offset_top) / @pixels_per_beat
     upper, lower
 
+  can_input:  =>
+    return false unless @track.playing
+    -- wait a moment
+    return false if love.timer.getTime! - @track.start_time < 0.2
+    true
+
   update: (dt) =>
     @particles\update dt
     @main_seq\update dt if @main_seq
@@ -173,7 +182,7 @@ class TrackField extends Box
     if @vib_seq
       @vib_seq\update dt
 
-    unless @track.finished
+    if @can_input!
       if CONTROLLER\downed "one"
         pressed = true
         @face\hit_eye 1
@@ -188,7 +197,7 @@ class TrackField extends Box
         note.hit_delta = delta
         @on_hit_note note
       elseif pressed and not delta
-        @on_miss_note nil
+        @on_miss_note nil, true
 
       @mark_missed_notes!
 
@@ -262,7 +271,16 @@ class Game
     @metronome = Metronome!
     @visibility = VisibilityMeter!
 
-    @list = VList { @visibility }
+    @list = VList {
+      @visibility
+      VList {
+        with Label "game over if this goes to 0"
+          .color = {255,255,255, 100}
+
+        Label ""
+        Label "press -1- to start"
+      }
+    }
     @hit_list = VList {}
 
     @ui = Bin 0, 0, @viewport.w, @viewport.h, HList {
@@ -294,15 +312,17 @@ class Game
     if notes = @track and @track.notes
       notes\draw!
 
+  keypressed: (key) =>
+    if CONTROLLER\is_down "quit"
+      @field\on_game_over!
+      return true
+
   update: (dt) =>
     @ui\update dt
     @entities\update dt
     @particles\update dt
 
     if CONTROLLER\downed "confirm"
-      if @track
-        @field\on_game_over!
-
       unless @track
         print "Queue track"
         @track = Track "beat"
@@ -311,6 +331,7 @@ class Game
         @metronome\set_track @track
 
         @field = TrackField @, @track, 0,0
-        table.insert @list.items, @field
+
+        @list.items[2] = @field
 
 { :Game, :TrackField }
