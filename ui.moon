@@ -103,9 +103,10 @@ class StatsSummary
     @ui = Bin 0, 0, DISPATCHER.viewport.w, DISPATCHER.viewport.h, container
 
     @main_seq = Sequence ->
-      wait 1.0
+      wait 0.5
       wait_until -> CONTROLLER\tapped "confirm"
-      error "go back to menu"
+      AUDIO\play "select"
+      DISPATCHER\pop 2 -- return to menu
       @main_seq = nil
 
   update: (dt) =>
@@ -113,11 +114,100 @@ class StatsSummary
     @main_seq\update dt if @main_seq
 
   draw: =>
-    DISPATCHER\parent!\draw!
+    if parent = DISPATCHER\parent!
+      parent\draw!
+
     COLOR\push 40, 40, 70, 100
     g.rectangle "fill", DISPATCHER.viewport\unpack!
     COLOR\pop!
 
     @ui\draw!
 
-{ :Metronome, :VisibilityMeter, :StatsSummary }
+class StageSelect
+  lazy bg: ->
+    with imgfy "images/select_bg.png"
+      \set_wrap "repeat", "repeat"
+
+  stages: {
+    {
+      name: "1. tutorial"
+      module: "beat"
+      desc: "let's go!"
+    }
+    {
+      name: "2. fake"
+      module: "beat"
+      desc: "kick it"
+    }
+
+    {
+      name: "2. stupid"
+      module: "beat"
+      desc: "& love &"
+    }
+  }
+
+  default_bg: {0,0,0,100}
+  highlight_bg: {255,255,255,100}
+
+  new: =>
+    @viewport = DISPATCHER.viewport
+    @selected_item = 1
+    @stage_items = for stage in *@stages
+      data = require "midi.#{stage.module}"
+
+      group = VList {
+        Label stage.name
+        Label "bpm: #{data.bpm} - #{stage.desc}"
+      }
+
+      Border group, padding: 5, background: @default_bg, min_width: 150
+
+    @stage_items.padding = 10
+    list = VList @stage_items
+
+    @ui = Bin 0, 0, @viewport.w, @viewport.h, list
+
+  move: (ds) =>
+    @selected_item += ds
+    @selected_item = 1 if @selected_item > #@stages
+    @selected_item = #@stages if @selected_item == 0
+    AUDIO\play "menu"
+
+  draw: =>
+    @bg_quad or= g.newQuad 0, 0, @viewport.w, @viewport.h, @bg\width!, @bg\height!
+    @bg\draw @bg_quad, 0, 0
+
+    @ui\draw!
+
+  load_stage: =>
+    AUDIO\play "select"
+    stage = @stages[@selected_item]
+    import Game from require "game"
+    DISPATCHER\push Game!
+
+  update: (dt) =>
+    if CONTROLLER\tapped "down"
+      @move 1
+
+    if CONTROLLER\tapped "up"
+      @move -1
+
+    if CONTROLLER\tapped "confirm"
+      @load_stage!
+
+    h = lerp 170, 255, (math.sin(10 * love.timer.getTime!) + 1) / 2
+
+    @highlight_bg[1] = h
+    @highlight_bg[2] = h
+    @highlight_bg[3] = h
+
+    for i, item in pairs @stage_items
+      item.background = if i == @selected_item
+         @highlight_bg
+      else
+        @default_bg
+
+    @ui\update dt
+
+{ :Metronome, :VisibilityMeter, :StatsSummary, :StageSelect }
