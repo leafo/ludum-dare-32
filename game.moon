@@ -27,6 +27,15 @@ class TrackField extends Box
     @notes_played = {}
     print "Created field"
 
+
+  on_hit_note: (note) =>
+    @hits += 1
+    @chain += 1
+    @game\on_hit_note note
+
+  on_miss_note: (note) =>
+    @chain = 0
+
   draw: =>
     return unless @track.playing
 
@@ -79,20 +88,17 @@ class TrackField extends Box
 
     local note, delta
 
-    if CONTROLLER\tapped "one"
+    if CONTROLLER\downed "one"
       @one_time = love.timer.getTime!
       note, delta = @find_hit_note 1
 
-    if CONTROLLER\tapped "two"
+    if CONTROLLER\downed "two"
       @two_time = love.timer.getTime!
       note, delta = @find_hit_note 2
 
     if note
       note.hit_delta = delta
-      @game\on_hit_note note
-
-      @hits += 1
-      @chain += 1
+      @on_hit_note note
 
     @mark_missed_notes!
     true
@@ -110,6 +116,7 @@ class TrackField extends Box
         delta = @track\beat_to_ms beat_delta
         if delta > @min_delta
           note.missed = true
+          @on_miss_note note
 
   -- returns note, delta is ms
   find_hit_note: (col) =>
@@ -194,7 +201,7 @@ class Game
     @entities\update dt
     @particles\update dt
 
-    if CONTROLLER\tapped "confirm"
+    if CONTROLLER\downed "confirm"
       unless @track
         print "Queue track"
         @track = Track "beat"
