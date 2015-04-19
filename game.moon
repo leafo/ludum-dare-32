@@ -1,14 +1,14 @@
 
 {graphics: g, audio: a} = love
 
-import Bin, HList, VList, Label from require "lovekit.ui"
+import Bin, HList, VList, Label, Border from require "lovekit.ui"
 
 import Metronome from require "ui"
 import Track from require "track"
 import HitEmitter from require "emitters"
 
 class TrackField extends Box
-  min_delta: 150
+  min_delta: 120
 
   socket_w: 20
   socket_h: 10
@@ -18,6 +18,9 @@ class TrackField extends Box
   socket_spacing: 50
 
   socket_fade: 0.2
+
+  chain: 0
+  hits: 0
 
   new: (@game, @track, ...) =>
     super ...
@@ -130,12 +133,19 @@ class Game
 
     @ui = Bin 0, 0, @viewport.w, @viewport.h, HList {
       @list
-      @hit_list
+      VList {
+        Border VList({
+          Label -> "score: "
+          Label -> "chain: "
+        }), padding: 5
+        @hit_list
+      }
     }
 
   on_hit_note: (note, bs) =>
     x, y = @field\note_position note
     @particles\add HitEmitter @, x,y
+    @append_hit bs
 
   append_hit: (bs) =>
     table.insert @hit_list.items, 1, Label "#{math.floor bs * 1000}"
