@@ -118,7 +118,8 @@ class Eye extends Box
       @sprite\draw @x + @ox, @y + @oy
       COLOR\pop!
 
-    g.rectangle "line", @unpack!
+    if DEBUG
+      g.rectangle "line", @unpack!
 
   update: (dt) =>
     @seq\update dt if @seq
@@ -161,9 +162,16 @@ class Face extends Box
     @eyes[col]\center!
 
   draw: =>
-    g.rectangle "line", @unpack!
+    if DEBUG
+      g.rectangle "line", @unpack!
+
+    g.push!
+    g.translate @tongue.x, @tongue.y
+    g.rotate @track\sync_sin! / 10
+    g.translate -@tongue.x, -@tongue.y
 
     @sprite\draw @x, @y
+    g.pop!
 
     for eye in *@eyes
       eye\draw!

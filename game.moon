@@ -13,6 +13,8 @@ class TrackField extends Box
   w: 140
   h: 240
 
+  lazy bg: -> imgfy "images/seat.png"
+
   min_delta: 120
   
   thresholds: {
@@ -104,9 +106,12 @@ class TrackField extends Box
   draw: =>
     return unless @track.playing
 
-    g.rectangle "line", @unpack!
+    @bg\draw 10, @game.viewport.h - 140 + 2 * @track\sync_sin!
 
-    g.setStencil -> g.rectangle "fill", @unpack!
+    if DEBUG
+      g.rectangle "line", @unpack!
+
+    -- g.setStencil -> g.rectangle "fill", @unpack!
 
     g.push!
     g.translate @x, @y
@@ -123,7 +128,7 @@ class TrackField extends Box
 
     g.pop!
 
-    g.setStencil!
+    -- g.setStencil!
 
   -- get the bottom and top in beats
   get_bounds: =>

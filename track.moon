@@ -87,6 +87,12 @@ class Track
       @last_measure = active_beat
       print "  Entering measure: #{@last_measure}"
 
+  -- synchronize time in seconds to beat
+  sync_sin: (time=love.timer.getTime!) =>
+    b, q = @get_beat time
+    return 0 unless b
+    math.sin (b + q) * math.pi
+
   update: (dt) =>
     unless @prepared
       if @preparing
