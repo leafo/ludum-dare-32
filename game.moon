@@ -26,15 +26,24 @@ class TrackField extends Box
     super ...
     @notes_played = {}
     print "Created field"
-
+    @vib_seq = nil
 
   on_hit_note: (note) =>
     @hits += 1
     @chain += 1
     @game\on_hit_note note
 
+  -- note might be nil if it was a mis-press
   on_miss_note: (note) =>
     @chain = 0
+    if joystick = CONTROLLER.joystick
+      @vib_seq = Sequence ->
+        print "vibrate start"
+        joystick\setVibration 0.5, 0.5
+        wait 0.1
+        print "vibrate stop"
+        joystick\setVibration!
+        @vib_seq = nil
 
   draw: =>
     return unless @track.playing
@@ -86,22 +95,31 @@ class TrackField extends Box
   update: (dt) =>
     return unless @track.playing
 
-    local note, delta
+    local note, delta, pressed
+
+    if @vib_seq
+      @vib_seq\update dt
 
     if CONTROLLER\downed "one"
+      pressed = true
       @one_time = love.timer.getTime!
       note, delta = @find_hit_note 1
 
     if CONTROLLER\downed "two"
+      pressed = true
       @two_time = love.timer.getTime!
       note, delta = @find_hit_note 2
 
     if note
       note.hit_delta = delta
       @on_hit_note note
+    elseif pressed
+      @on_miss_note nil
 
     @mark_missed_notes!
+
     true
+
 
   mark_missed_notes: =>
     b, q = @track\get_beat!
