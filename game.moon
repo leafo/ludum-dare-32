@@ -55,6 +55,11 @@ class TrackField extends Box
       nx, ny = @note_position note
       @particles\add ThreshEmitter "miss", @, nx,ny
 
+    @shake!
+
+  shake: =>
+    @game.viewport\shake!
+
     if joystick = CONTROLLER.joystick
       @vib_seq = Sequence ->
         print "vibrate start"
@@ -191,7 +196,7 @@ class TrackField extends Box
 
 class Game
   new: =>
-    @viewport = Viewport scale: GAME_CONFIG.scale
+    @viewport = EffectViewport scale: GAME_CONFIG.scale
     @entities = EntityList!
     @particles = DrawList!
 
@@ -229,6 +234,7 @@ class Game
     @viewport\pop!
 
   update: (dt) =>
+    @viewport\update dt
     @ui\update dt
     @entities\update dt
     @particles\update dt
