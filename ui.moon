@@ -1,5 +1,7 @@
 {graphics: g, audio: a} = love
 
+import VList, Label from require "lovekit.ui"
+
 class Metronome extends Box
   x: 0
   y: 0
@@ -31,4 +33,42 @@ class Metronome extends Box
     true
 
 
-{ :Metronome }
+class Bar extends Box
+  padding: 2
+  p: 0.5
+  draw_p: 0
+
+  draw: =>
+    g.rectangle "line", @unpack!
+
+    COLOR\push 255, 100, 100, 200
+    g.rectangle "fill", @x + @padding, @y + @padding,
+      (@w - 2 * @padding) * @draw_p, @h - 2 * @padding
+    COLOR\pop!
+
+  update: (dt) =>
+    @draw_p = smooth_approach @draw_p, @p, dt
+    true
+
+class VisibilityMeter extends VList
+  p: 0.5
+
+  new: =>
+    @bar = Bar 0,0, 200, 10
+
+    super {
+      Label "visibility"
+      @bar
+    }
+
+  update: (dt) =>
+    @bar.p = @p
+    super dt
+
+  increment: =>
+    @p = math.min 1, @p + 0.05
+
+  decrement: =>
+    @p = math.max 0, @p - 0.1
+
+{ :Metronome, :VisibilityMeter }

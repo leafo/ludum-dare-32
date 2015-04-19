@@ -3,7 +3,7 @@
 
 import Bin, HList, VList, Label, Border from require "lovekit.ui"
 
-import Metronome from require "ui"
+import Metronome, VisibilityMeter from require "ui"
 import Track from require "track"
 import HitEmitter, ThreshEmitter from require "emitters"
 
@@ -56,6 +56,8 @@ class TrackField extends Box
       @particles\add ThreshEmitter "miss", @, nx,ny
 
     @shake!
+
+    @game\on_miss_note note, from_hit
 
   shake: =>
     @game.viewport\shake!
@@ -201,8 +203,9 @@ class Game
     @particles = DrawList!
 
     @metronome = Metronome!
+    @visibility = VisibilityMeter!
 
-    @list = VList { @metronome }
+    @list = VList { @visibility, @metronome }
     @hit_list = VList {}
 
     @ui = Bin 0, 0, @viewport.w, @viewport.h, HList {
@@ -219,6 +222,10 @@ class Game
 
   on_hit_note: (note) =>
     @append_hit note.hit_delta
+    @visibility\increment!
+
+  on_miss_note: (note, from_hit) =>
+    @visibility\decrement!
 
   append_hit: (delta) =>
     table.insert @hit_list.items, 1, Label "#{math.floor delta}"
@@ -248,7 +255,7 @@ class Game
         @metronome\set_track @track
 
         @field = TrackField @, @track, 0,0
-        table.insert @list.items, @field
+        table.insert @list.items, 2, @field
 
   mousepressed: (mx,my) =>
     return unless @field
