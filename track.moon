@@ -35,6 +35,7 @@ class Track
     @finished = false
 
     @start_time = love.timer.getTime!
+    @source\setLooping false
     @source\rewind!
     @source\setVolume 1
     @last_measure = -1
@@ -78,10 +79,9 @@ class Track
     @data.measures
 
   check_finished: =>
-    if @source\tell("seconds") > @duration!
+    if love.timer.getTime! - @start_time > @duration!
       @stop!
       @finished = true
-
       -- for looping
       -- @notes\reset!
       -- @start!
