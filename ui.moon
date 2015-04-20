@@ -133,19 +133,20 @@ class StageSelect
 
   stages: {
     {
-      name: "1. tutorial"
+      name: "1. practice"
       module: "beat"
       desc: "let's go!"
     }
+
     {
-      name: "2. fake"
-      module: "beat"
+      name: "2. great ready"
+      module: "1"
       desc: "kick it"
     }
 
     {
-      name: "2. stupid"
-      module: "beat"
+      name: "3. to the max"
+      module: "2"
       desc: "& love &"
     }
   }
@@ -168,6 +169,22 @@ class StageSelect
 
     @stage_items.padding = 10
     list = VList @stage_items
+
+
+    list = VList {
+      Label "glasses protector 2000"
+      Label "ld 32 edition"
+      Label ""
+      Label "arrows move, enter select"
+      list
+
+      Label ""
+      with Label "leafo 2015"
+        .color = {255,255,255, 180}
+
+      with Label "    dedicated 2 adit"
+        .color = {255,255,255, 180}
+    }
 
     @ui = Bin 0, 0, @viewport.w, @viewport.h, list
 

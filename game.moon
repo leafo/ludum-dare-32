@@ -199,12 +199,15 @@ class TrackField extends Box
       elseif pressed and not delta
         @on_miss_note nil, true
 
+      -- note: we may have entered game over here from the miss note call above
       @mark_missed_notes!
 
     true
 
   mark_missed_notes: =>
     b, q = @track\get_beat!
+    return unless b
+
     b += q
 
     for note in @track.notes\each_note @get_bounds!
@@ -221,6 +224,8 @@ class TrackField extends Box
   -- returns note, delta is ms
   find_hit_note: (col) =>
     b, q = @track\get_beat!
+    return unless b
+
     local min_note, min_d
 
     bq = b + q
@@ -279,6 +284,8 @@ class Game
 
         Label ""
         Label "press -1- to start"
+        Label ""
+        Label "use -1- and -2- to flick tongue"
       }
     }
     @hit_list = VList {}
@@ -302,18 +309,21 @@ class Game
   on_miss_note: (note, from_hit) =>
     @visibility\decrement!
 
+    if @visibility.p <= 0
+      @field\on_game_over!
+
   append_hit: (delta) =>
     table.insert @hit_list.items, 1, Label "#{math.floor delta}"
     @hit_list.items[11] = nil
 
   draw: =>
     @ui\draw!
+    -- debug notes
+    -- if notes = @track and @track.notes
+    --   notes\draw!
 
-    if notes = @track and @track.notes
-      notes\draw!
-
-  keypressed: (key) =>
-    if CONTROLLER\is_down "quit"
+  on_key: (key) =>
+    if @field and @track and CONTROLLER\is_down("quit")
       @field\on_game_over!
       return true
 
@@ -322,7 +332,7 @@ class Game
     @entities\update dt
     @particles\update dt
 
-    if CONTROLLER\downed "confirm"
+    if CONTROLLER\downed "confirm", "1"
       unless @track
         print "Queue track"
         @track = Track @stage.module

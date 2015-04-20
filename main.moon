@@ -1,7 +1,7 @@
 require "lovekit.all"
 
-if pcall(-> require"inotify")
-  require "lovekit.reloader"
+-- if pcall(-> require"inotify")
+--   require "lovekit.reloader"
 
 {graphics: g} = love
 

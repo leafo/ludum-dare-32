@@ -144,6 +144,6 @@
     "steady"
 
     -- 36
-    "paradiddle"
+    "default"
   }
 }
