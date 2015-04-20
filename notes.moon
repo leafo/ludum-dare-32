@@ -10,8 +10,8 @@ class Note
   draw: (@x, @y) =>
     faded = @hit_delta or @missed
 
-    if @hit_delta
-      g.print "#{math.floor @hit_delta}", @x + @w, @y
+    -- if @hit_delta
+    --   g.print "#{math.floor @hit_delta}", @x + @w, @y
 
     return if faded
 
@@ -91,7 +91,7 @@ class TrackNotes
 
       beat_offset += @track.data.beats_per_measure
 
-    @dump_notes!
+    -- @dump_notes!
 
   dump_notes: =>
     for note in *@all_notes

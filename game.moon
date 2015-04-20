@@ -43,6 +43,9 @@ class TrackField extends Box
     @particles = DrawList!
     @face = Face @track, 0, 0
 
+    @pixels_per_beat = @track.data.pixels_per_beat
+    print "setting pixels per beat to #{@pixels_per_beat}"
+
     @main_seq = Sequence ->
       wait_until -> @track.finished
       import StatsSummary from require "ui"
@@ -226,7 +229,7 @@ class TrackField extends Box
     b, q = @track\get_beat!
     return unless b
 
-    local min_note, min_d
+    local min_note, min_d, early
 
     bq = b + q
     for note in @track.notes\each_note b - 1, b + 1
@@ -239,10 +242,11 @@ class TrackField extends Box
         if delta < min_d
           min_note = note
           min_d = delta
+          early = note.beat > bq
       else
         min_note = note
         min_d = math.abs note.beat - bq
-
+        early = note.beat > bq
 
     return unless min_note
 
@@ -252,6 +256,7 @@ class TrackField extends Box
       @on_miss_note min_note, true
       return nil, true
 
+    -- print early and "hit early" or "hit late"
     min_note, delta
 
   -- relative to viewport

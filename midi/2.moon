@@ -2,6 +2,7 @@
   bpm: 170
   beats_per_measure: 8
   measures: 38
+  pixels_per_beat: 70
 
   notes: {
     intro: {

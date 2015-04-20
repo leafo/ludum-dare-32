@@ -22,7 +22,6 @@ class Tongue
     @lerp = 0
 
   move: (@target_x, @target_y) =>
-    print "move", @target_x, @target_y
     @seq = Sequence ->
       tween @, 0.02, lerp: 1
       tween @, 0.2, lerp: 0
