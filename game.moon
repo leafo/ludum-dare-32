@@ -123,14 +123,14 @@ class TrackField extends Box
   shake: =>
     @game.viewport\shake!
 
-    if joystick = CONTROLLER.joystick
-      @vib_seq = Sequence ->
-        print "vibrate start"
-        joystick\setVibration 0.5, 0.5
-        wait 0.1
-        print "vibrate stop"
-        joystick\setVibration!
-        @vib_seq = nil
+    -- if joystick = CONTROLLER.joystick
+    --   @vib_seq = Sequence ->
+    --     print "vibrate start"
+    --     joystick\setVibration 0.5, 0.5
+    --     wait 0.1
+    --     print "vibrate stop"
+    --     joystick\setVibration!
+    --     @vib_seq = nil
 
   draw: =>
     return unless @track.playing or @track.finished
